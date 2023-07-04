@@ -1,17 +1,15 @@
 import axios from "axios";
 import { BASE_URL } from "./config";
-
-interface User {
+export interface IUser {
   id: number;
   shortId: string;
   uuid: string;
-  organizationId: string;
   fullname: string;
   initials: string;
   username: string;
 }
 
-export async function getUser(): Promise<User | null> {
+export async function getCurrentUser(): Promise<IUser | null> {
   const res = await axios.get(`${BASE_URL}/auth/currentuser`);
   if (res.status === 200 && res.data !== null) {
     return res.data;
