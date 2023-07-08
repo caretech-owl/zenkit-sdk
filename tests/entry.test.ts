@@ -1,6 +1,5 @@
 import { IElement } from "../src/element";
 import { Entry, IEntry } from "../src/entry";
-import { ValueField } from "../src/fields/base";
 import TextField from "../src/fields/text";
 import * as elementDataJson from "./data/test_collection_elements.json";
 import * as entryDataJson from "./data/test_collection_entries.json";
@@ -18,6 +17,8 @@ describe("test entry", () => {
       entryDataJson["listEntries"][0] as IEntry,
       elements
     );
+    expect(entry.fieldNames).toContain("Text Field");
+    expect(entry.fieldNames).not.toContain("Last Updated");
     expect(entry.field("Text Field")).not.toBeNull();
     const field = entry.field("Text Field") as TextField;
     const value = field.value;

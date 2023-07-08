@@ -46,6 +46,10 @@ export class Entry {
     return this.fields.get(name);
   }
 
+  get fieldNames(): Array<string> {
+    return Array.from(this.fields.keys());
+  }
+
   constructor(jsonData: IEntry, elements: Array<IElement>) {
     this.data = jsonData;
     this.fields = new Map();
