@@ -42,7 +42,23 @@ export class Entry {
     ArrayField<number | string> | ValueField<number | string>
   >;
 
-  private _key: ValueField<number | string>;
+  private _key: ValueField<number | string> | null;
+
+  constructor(jsonData: IEntry, elements: Array<IElement>) {
+    this.data = jsonData;
+    this.fields = new Map();
+    this._key = null;
+    for (const element of elements) {
+      const cls = FieldMap[element.elementcategory];
+      if (cls !== undefined) {
+        const entry = new cls(element.uuid, this.data);
+        this.fields.set(element.name, entry);
+        if (element.isPrimary) {
+          this._key = entry;
+        }
+      }
+    }
+  }
 
   public field(name: string) {
     return this.fields.get(name);
@@ -56,20 +72,8 @@ export class Entry {
     return this.data.id;
   }
 
-  get key(): string  {
-    return this._key.value?.toString() || "";
-  }
-
-  constructor(jsonData: IEntry, elements: Array<IElement>) {
-    this.data = jsonData;
-    this.fields = new Map();
-    for (const element of elements) {
-      const cls = FieldMap[element.elementcategory];
-      element.
-      if (cls !== undefined) {
-        this.fields.set(element.name, new cls(element.id, this.data));
-      }
-    }
+  get key(): string {
+    return this._key?.value?.toString() || "";
   }
 
   public async commit() {

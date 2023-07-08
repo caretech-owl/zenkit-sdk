@@ -1,6 +1,6 @@
 import axios from "axios";
 import { EP_GET_WORKSPACES } from "./config";
-import { ICollection } from "./collections";
+import { Collection, ICollection } from "./collections";
 
 export interface IWorkspace {
   name: string;
@@ -11,9 +11,14 @@ export interface IWorkspace {
 
 export class Workspace {
   data: IWorkspace;
+  collections: Array<Collection>;
 
   constructor(jsonData: IWorkspace) {
     this.data = jsonData;
+    this.collections = [];
+    for (const list of this.data.lists) {
+      this.collections.push(new Collection(list));
+    }
   }
 
   get id(): number {
@@ -24,10 +29,10 @@ export class Workspace {
     return this.data.name;
   }
 
-  public collection(id: number): ICollection | null;
-  public collection(name: string): ICollection | null;
+  public collection(id: number): Collection | null;
+  public collection(name: string): Collection | null;
 
-  public collection(param: unknown): ICollection | null {
+  public collection(param: unknown): Collection | null {
     if (typeof param === "number") {
       return this.getCollectionByID(param);
     } else if (typeof param === "string") {
@@ -36,20 +41,20 @@ export class Workspace {
     return null;
   }
 
-  private getCollectionByID(id: number): ICollection | null {
-    for (const list of this.data.lists) {
-      if (list.id == id) {
-        return list;
+  private getCollectionByID(id: number): Collection | null {
+    for (const collection of this.collections) {
+      if (collection.id == id) {
+        return collection;
       }
     }
     return null;
   }
 
-  private getCollectionByName(regex: string): IList | null {
+  private getCollectionByName(regex: string): Collection | null {
     const rx = new RegExp(regex);
-    for (const list of this.data.lists) {
-      if (rx.test(list.name)) {
-        return list;
+    for (const collection of this.collections) {
+      if (rx.test(collection.name)) {
+        return collection;
       }
     }
     return null;

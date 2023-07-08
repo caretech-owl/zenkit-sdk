@@ -22,6 +22,10 @@ export class Collection {
     return this.data.id;
   }
 
+  get name(): string {
+    return this.data.name;
+  }
+
   public entry(id: number): Entry | null;
   public entry(key: string): Entry | null;
 

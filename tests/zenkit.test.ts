@@ -15,7 +15,6 @@ describe("Zenkit API operations", () => {
 
   beforeEach(() => {
     mockedAxios.get.mockImplementation((url) => {
-      console.log(url);
       switch (url) {
         case EP_GET_CURRENT_USER:
           return Promise.resolve({
@@ -45,17 +44,12 @@ describe("Zenkit API operations", () => {
     if (!workspace) {
       fail("Workspace not defined!");
     }
-    expect(workspace.collection("Test Collection")).not.toBeNull();
-    expect(workspace.collection("CollectionThatDoesNotExist")).toBeNull();
-  });
-
-  it("should populate 'Test Collection'", async () => {
-    const zenkit = await Zenkit.createAsync();
-    const workspace = zenkit.workspace("Test Bot Workspace");
-    if (!workspace) {
-      fail("Workspace not defined!");
-    }
     const collection = workspace.collection("Test Collection");
-    expect(collection).not.toBeNull();
+    if (collection === null) {
+      fail("Collection is null");
+    }
+    expect(workspace.collection("CollectionThatDoesNotExist")).toBeNull();
+    expect(collection.entry(0)).toBeNull();
+    expect(collection.entry("Eine Neue Aufgabe")).toBeNull();
   });
 });
