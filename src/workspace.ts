@@ -1,12 +1,12 @@
 import axios from "axios";
 import { EP_GET_WORKSPACES } from "./config";
-import { IList } from "./list";
+import { ICollection } from "./collections";
 
 export interface IWorkspace {
   name: string;
   id: number;
   shortId: string;
-  lists: Array<IList>;
+  lists: Array<ICollection>;
 }
 
 export class Workspace {
@@ -24,10 +24,10 @@ export class Workspace {
     return this.data.name;
   }
 
-  public collection(id: number): IList | null;
-  public collection(name: string): IList | null;
+  public collection(id: number): ICollection | null;
+  public collection(name: string): ICollection | null;
 
-  public collection(param: unknown): IList | null {
+  public collection(param: unknown): ICollection | null {
     if (typeof param === "number") {
       return this.getCollectionByID(param);
     } else if (typeof param === "string") {
@@ -36,7 +36,7 @@ export class Workspace {
     return null;
   }
 
-  private getCollectionByID(id: number): IList | null {
+  private getCollectionByID(id: number): ICollection | null {
     for (const list of this.data.lists) {
       if (list.id == id) {
         return list;

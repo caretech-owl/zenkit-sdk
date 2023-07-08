@@ -48,4 +48,14 @@ describe("Zenkit API operations", () => {
     expect(workspace.collection("Test Collection")).not.toBeNull();
     expect(workspace.collection("CollectionThatDoesNotExist")).toBeNull();
   });
+
+  it("should populate 'Test Collection'", async () => {
+    const zenkit = await Zenkit.createAsync();
+    const workspace = zenkit.workspace("Test Bot Workspace");
+    if (!workspace) {
+      fail("Workspace not defined!");
+    }
+    const collection = workspace.collection("Test Collection");
+    expect(collection).not.toBeNull();
+  });
 });

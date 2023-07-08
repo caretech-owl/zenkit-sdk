@@ -1,13 +1,7 @@
 import { IEntry } from "../entry";
 
 export type FieldType = FieldValueTypes | FieldArrayType;
-export type FieldValueTypes =
-  | string
-  | number
-  | null
-  | boolean
-  | object
-  | undefined;
+export type FieldValueTypes = string | number | null | boolean | object;
 export type FieldArrayType = Array<FieldValueTypes>;
 
 export abstract class FieldBase<T> {

@@ -42,6 +42,8 @@ export class Entry {
     ArrayField<number | string> | ValueField<number | string>
   >;
 
+  private _key: ValueField<number | string>;
+
   public field(name: string) {
     return this.fields.get(name);
   }
@@ -50,11 +52,20 @@ export class Entry {
     return Array.from(this.fields.keys());
   }
 
+  get id(): number {
+    return this.data.id;
+  }
+
+  get key(): string  {
+    return this._key.value?.toString() || "";
+  }
+
   constructor(jsonData: IEntry, elements: Array<IElement>) {
     this.data = jsonData;
     this.fields = new Map();
     for (const element of elements) {
       const cls = FieldMap[element.elementcategory];
+      element.
       if (cls !== undefined) {
         this.fields.set(element.name, new cls(element.id, this.data));
       }
