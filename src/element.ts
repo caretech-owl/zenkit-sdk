@@ -1,5 +1,6 @@
 export enum FieldCategory {
   TEXT = 1,
+  NUMBER = 2,
   LINK = 3,
   DATE = 4,
   CATEGORIES = 6,

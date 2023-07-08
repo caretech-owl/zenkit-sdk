@@ -12,7 +12,7 @@ const mockedAxios = axios as jest.Mocked<typeof axios>;
 let collection: Collection;
 
 describe("Zenkit API operations", () => {
-  beforeAll(() => {
+  beforeEach(() => {
     collection = new Collection(workspacesJsonData.data[0].lists[0]);
   });
 

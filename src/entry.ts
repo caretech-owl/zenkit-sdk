@@ -1,3 +1,4 @@
+import axios from "axios";
 import { FieldCategory, IElement } from "./element";
 import { ArrayField, FieldType, ValueField } from "./fields/base";
 import CategoriesField from "./fields/categories";
@@ -6,6 +7,8 @@ import LinkField from "./fields/link";
 import PersonsField from "./fields/persons";
 import ReferencesField from "./fields/references";
 import TextField from "./fields/text";
+import { BASE_URL } from "./config";
+import NumberField from "./fields/number";
 
 export interface IEntry {
   id: number;
@@ -17,6 +20,7 @@ export interface IEntry {
   updated_by: number;
   displayString: string;
   comment_count: number;
+  listId: number;
   [key: string]: FieldType;
   //   [key: `${string}_text`]: string;
   //   [key: `${string}_date`]: string; // TODO make DateStringType YYYY-MM-DD (HH:mm:ss)
@@ -28,6 +32,7 @@ export interface IEntry {
 
 const FieldMap: { [key: number]: any } = {
   [FieldCategory.TEXT]: TextField,
+  [FieldCategory.NUMBER]: NumberField,
   [FieldCategory.DATE]: DateField,
   [FieldCategory.LINK]: LinkField,
   [FieldCategory.PERSONS]: PersonsField,
@@ -83,6 +88,12 @@ export class Entry {
         editData[field.name] = field.value;
         field.edited = false;
       }
+    }
+    if (Object.keys(editData).length > 0) {
+      axios.put(
+        `${BASE_URL}/lists/${this.data.listId}/entries/${this.id}`,
+        editData
+      );
     }
   }
 }
