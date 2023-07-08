@@ -1,5 +1,5 @@
 import axios from "axios";
-import { BASE_URL } from "./config";
+import { EP_GET_CURRENT_USER } from "./config";
 export interface IUser {
   id: number;
   shortId: string;
@@ -10,7 +10,7 @@ export interface IUser {
 }
 
 export async function getCurrentUser(): Promise<IUser | null> {
-  const res = await axios.get(`${BASE_URL}/auth/currentuser`);
+  const res = await axios.get(EP_GET_CURRENT_USER);
   if (res.status === 200 && res.data !== null) {
     return res.data;
   } else {

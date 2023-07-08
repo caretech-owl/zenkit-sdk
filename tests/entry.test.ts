@@ -7,10 +7,9 @@ import * as entryDataJson from "./data/test_collection_entries.json";
 describe("test entry", () => {
   it("should create an entry", async () => {
     const elements: Array<IElement> = [];
-    for (const i in Object.keys(elementDataJson)) {
-      const elemJson = elementDataJson[i];
-      if (elemJson) {
-        elements.push(elemJson as IElement);
+    for (const elementJson of elementDataJson.data) {
+      if (elementJson) {
+        elements.push(elementJson as IElement);
       }
     }
     const entry = new Entry(

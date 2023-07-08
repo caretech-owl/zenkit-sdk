@@ -1,9 +1,22 @@
 import { getCurrentUser } from "../src/user";
+import axios from "axios";
+import * as userJsonData from "./data/test_collection_user.json";
 
-// describe("test get user info", () => {
-//   it("should return a user", async () => {
-//     const user = await getCurrentUser();
-//     expect(user).not.toBeNull();
-//     expect(user!.id).not.toBeUndefined();
-//   });
-// });
+jest.mock("axios");
+const mockedAxios = axios as jest.Mocked<typeof axios>;
+
+describe("test get user info", () => {
+  afterEach(() => {
+    jest.resetAllMocks();
+  });
+
+  it("should return a user", async () => {
+    mockedAxios.get.mockResolvedValue({
+      status: 200,
+      data: userJsonData,
+    });
+    const user = await getCurrentUser();
+    expect(user).not.toBeNull();
+    expect(user!.id).not.toBeUndefined();
+  });
+});

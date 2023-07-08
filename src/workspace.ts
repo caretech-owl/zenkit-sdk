@@ -1,5 +1,5 @@
 import axios from "axios";
-import { BASE_URL } from "./config";
+import { EP_GET_WORKSPACES } from "./config";
 import { IList } from "./list";
 
 export interface IWorkspace {
@@ -58,7 +58,7 @@ export class Workspace {
 
 export async function getCurrentWorkspaces(): Promise<Array<Workspace>> {
   const workspaces = [];
-  const res = await axios.get(`${BASE_URL}/users/me/workspacesWithLists`);
+  const res = await axios.get(EP_GET_WORKSPACES);
   if (res.status === 200 && res.data !== null) {
     for (const workspace of res.data) {
       workspaces.push(new Workspace(workspace as IWorkspace));
