@@ -42,17 +42,27 @@ describe("test entry", () => {
 
   it("should commit changes ", async () => {
     let called = false;
+    const text = entry.field("Text Field") as TextField;
+    const digits = entry.field("Number Field") as NumberField;
+
     mockedAxios.put.mockImplementation((url, data) => {
       expect(called).toBeFalsy();
       called = true;
+      const casted = data as { [key: string]: string };
+      expect(digits.name in casted).toBeTruthy();
+      expect(text.name in casted).toBeFalsy();
       return Promise.resolve({
         status: 200,
       });
       //   return Promise.reject(new Error(`Endpoint ${url} is invalid.`));
     });
+    await entry.commit(); // should not call mock since no changes
+    await entry.commit(); // same here
+    expect(typeof text.value).toBe("string");
+    expect(typeof digits.value).toBe("number");
+    expect(digits.value).toBe(42);
+    digits.set(1337);
+    await entry.commit(); // should call mock ONCE
     await entry.commit();
-    await entry.commit();
-    const text = entry.field("Text Field") as TextField;
-    const digits = entry.field("Number Field") as NumberField;
   });
 });

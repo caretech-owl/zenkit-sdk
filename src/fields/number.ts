@@ -1,5 +1,5 @@
 import { ValueField } from "./base";
 
 export default class NumberField extends ValueField<number> {
-  suffix: string = "_number";
+  suffix: string = "number";
 }
