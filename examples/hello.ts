@@ -24,28 +24,38 @@ const main = async () => {
   await collection.populate();
   console.log(collection.primaryKey);
   console.log(collection.listEntries());
-  const entry = collection.entry(1)!;
-  console.log(entry.listFieldNames());
-  const status_field = entry.field("Status Field") as CategoriesField;
-  console.log(status_field.element.getTypeScriptEnum());
-  const category = status_field.element.label("In Bearbeitung")!;
-  const tags_field = entry.field("Tag Field") as CategoriesField;
-  console.log(tags_field.element.getTypeScriptEnum());
-  const tempEntry = collection.entry("Ein temporärer Eintrag");
-  if (tempEntry !== null) {
-    await tempEntry.delete();
-  }
-  const newEntry = await collection.createEntry("Ein temporärer Eintrag");
-  let field = newEntry.field("Status Field") as CategoriesField;
-  field.addLabel(category.id);
-  await newEntry.commit();
-  field.addLabel(STATUS_FIELD.ERLEDIGT);
-  field = newEntry.field("Tag Field") as CategoriesField;
-  field.addLabel(TAG_FIELD.BUG);
-  field.addLabel(TAG_FIELD.NEW);
-  await newEntry.commit();
-  field.removeLabel(TAG_FIELD.BUG);
-  await newEntry.commit();
+  console.log(collection.data);
+  const workspaceUsers = await workspace.listUsers();
+  const alex = workspaceUsers.find((user) => user.initials === "AN")!;
+  console.log(await collection.addUser(alex));
+  // console.log(await collection.removeUser());
+  // console.log(await collection.addUser());
+  // const entry = collection.entry(1)!;
+  // console.log(entry.listFieldNames());
+  // const status_field = entry.field("Status Field") as CategoriesField;
+  // console.log(status_field.element.getTypeScriptEnum());
+  // const category = status_field.element.label("In Bearbeitung")!;
+  // const tags_field = entry.field("Tag Field") as CategoriesField;
+  // console.log(tags_field.element.getTypeScriptEnum());
+
+  // const tempEntry = collection.entry("Ein temporärer Eintrag")!;
+  // console.log(await tempEntry.getComments());
+  // await tempEntry.comment("This is a test");
+  // if (tempEntry !== null) {
+  //   await tempEntry.delete();
+  // }
+  // const newEntry = await collection.createEntry("Ein temporärer Eintrag");
+  // let field = newEntry.field("Status Field") as CategoriesField;
+  // field.addLabel(category.id);
+  // await newEntry.commit();
+  // field.addLabel(STATUS_FIELD.ERLEDIGT);
+  // field = newEntry.field("Tag Field") as CategoriesField;
+  // field.addLabel(TAG_FIELD.BUG);
+  // field.addLabel(TAG_FIELD.NEW);
+  // await newEntry.commit();
+  // field.removeLabel(TAG_FIELD.BUG);
+  // await newEntry.commit();
+  // await newEntry.comment("This is a test");
 };
 
 main();

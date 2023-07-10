@@ -14,6 +14,7 @@ import ReferencesField from "./fields/references";
 import TextField from "./fields/text";
 import { BASE_URL } from "./config";
 import NumberField from "./fields/number";
+import IComment from "./comment";
 
 export interface IEntry {
   id: number;
@@ -85,6 +86,25 @@ export class Entry {
 
   get id(): number {
     return this.data.id;
+  }
+
+  public async comment(
+    message: string,
+    parent: string | null = null
+  ): Promise<boolean> {
+    const res = await axios.post(
+      `${BASE_URL}/users/me/lists/${this.data.listId}/entries/${this.id}/activities`,
+      { message: message, parentUUID: parent }
+    );
+
+    return res.status === 200;
+  }
+
+  public async getComments(userId?: number): Promise<Array<IComment>> {
+    const res = await axios.get(
+      `${BASE_URL}/lists/${this.data.listId}/entries/${this.id}/activities?filter=2`
+    );
+    return (res.data.activities || []) as Array<IComment>;
   }
 
   get primaryKey(): string {

@@ -3,10 +3,13 @@ import { BASE_URL } from "./config";
 import { IEntry, Entry } from "./entry";
 import { Element } from "./element";
 import { ValueFieldType } from "./fields/base";
+import { IUser } from "./user";
 
 export interface ICollection {
   id: number;
   name: string;
+  workspaceId: number;
+  visibility: number;
 }
 
 export class Collection {
@@ -40,7 +43,35 @@ export class Collection {
     return this._elements || [];
   }
 
-  listEntries(): Array<{ key: string; id: number }> {
+  public async listUsers(): Promise<Array<IUser>> {
+    const res = await axios.get(`${BASE_URL}/lists/${this.id}/users`);
+    const users = res.data as Array<IUser>;
+    if (this.data.visibility === 1) {
+      const res2 = await axios.get(
+        `${BASE_URL}/workspaces/${this.data.workspaceId}/users`
+      );
+      for (const user of res2.data as Array<IUser>) {
+        users.push(user);
+      }
+    }
+    return users;
+  }
+
+  public async addUser(user: IUser): Promise<boolean> {
+    const res = await axios.post(`${BASE_URL}/lists/${this.id}/users`, {
+      userUUID: user.uuid,
+    });
+    return res.status === 200;
+  }
+
+  // public async removeUser(user: IUser): Promise<boolean> {
+  //   const res = await axios.delete(`${BASE_URL}/lists/${this.id}/users`, {
+  //     data: { userUUID:  user.uuid},
+  //   });
+  //   return res.status === 200;
+  // }
+
+  public listEntries(): Array<{ key: string; id: number }> {
     return this._entries.map((ent) => {
       return { key: ent.primaryKey, id: ent.id };
     });

@@ -1,6 +1,7 @@
 import axios from "axios";
-import { EP_GET_WORKSPACES } from "./config";
+import { BASE_URL, EP_GET_WORKSPACES } from "./config";
 import { Collection, ICollection } from "./collection";
+import { IUser } from "./user";
 
 export interface IWorkspace {
   name: string;
@@ -33,6 +34,12 @@ export class Workspace {
     return this._collections.map((col) => {
       return { name: col.name, id: col.id };
     });
+  }
+
+  public async listUsers(): Promise<Array<IUser>> {
+    const res = await axios.get(`${BASE_URL}/workspaces/${this.id}/users`);
+    const users = res.data as Array<IUser>;
+    return users;
   }
 
   public collection(id: number): Collection | null;
