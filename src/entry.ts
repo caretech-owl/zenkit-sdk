@@ -1,6 +1,11 @@
 import axios from "axios";
-import { FieldCategory, IElement } from "./element";
-import { ArrayField, FieldType, ValueField } from "./fields/base";
+import { Element, FieldCategory } from "./element";
+import {
+  ArrayField,
+  FieldType,
+  FieldValueTypes,
+  ValueField,
+} from "./fields/base";
 import CategoriesField from "./fields/categories";
 import DateField from "./fields/date";
 import LinkField from "./fields/link";
@@ -49,14 +54,14 @@ export class Entry {
 
   private _key: ValueField<number | string> | null;
 
-  constructor(jsonData: IEntry, elements: Array<IElement>) {
+  constructor(jsonData: IEntry, elements: Array<Element>) {
     this.data = jsonData;
     this.fields = new Map();
     this._key = null;
     for (const element of elements) {
       const cls = FieldMap[element.elementcategory];
       if (cls !== undefined) {
-        const entry = new cls(element.uuid, this.data);
+        const entry = new cls(element.fieldName, this.data);
         this.fields.set(element.name, entry);
         if (element.isPrimary) {
           this._key = entry;
@@ -69,7 +74,7 @@ export class Entry {
     return this.fields.get(name);
   }
 
-  get fieldNames(): Array<string> {
+  public listFieldNames(): Array<string> {
     return Array.from(this.fields.keys());
   }
 
@@ -77,7 +82,7 @@ export class Entry {
     return this.data.id;
   }
 
-  get key(): string {
+  get primaryKey(): string {
     return this._key?.value?.toString() || "";
   }
 
@@ -95,5 +100,12 @@ export class Entry {
         editData
       );
     }
+  }
+
+  public async delete(): Promise<boolean> {
+    const res = await axios.delete(
+      `${BASE_URL}/lists/${this.data.listId}/entries/${this.id}`
+    );
+    return res.status === 200;
   }
 }

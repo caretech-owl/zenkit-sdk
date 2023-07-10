@@ -1,6 +1,6 @@
 import axios from "axios";
 import { EP_GET_WORKSPACES } from "./config";
-import { Collection, ICollection } from "./collections";
+import { Collection, ICollection } from "./collection";
 
 export interface IWorkspace {
   name: string;
@@ -11,13 +11,13 @@ export interface IWorkspace {
 
 export class Workspace {
   data: IWorkspace;
-  collections: Array<Collection>;
+  _collections: Array<Collection>;
 
   constructor(jsonData: IWorkspace) {
     this.data = jsonData;
-    this.collections = [];
+    this._collections = [];
     for (const list of this.data.lists) {
-      this.collections.push(new Collection(list));
+      this._collections.push(new Collection(list));
     }
   }
 
@@ -27,6 +27,12 @@ export class Workspace {
 
   get name(): string {
     return this.data.name;
+  }
+
+  listCollections(): Array<{ name: string; id: number }> {
+    return this._collections.map((col) => {
+      return { name: col.name, id: col.id };
+    });
   }
 
   public collection(id: number): Collection | null;
@@ -42,7 +48,7 @@ export class Workspace {
   }
 
   private getCollectionByID(id: number): Collection | null {
-    for (const collection of this.collections) {
+    for (const collection of this._collections) {
       if (collection.id == id) {
         return collection;
       }
@@ -52,7 +58,7 @@ export class Workspace {
 
   private getCollectionByName(regex: string): Collection | null {
     const rx = new RegExp(regex);
-    for (const collection of this.collections) {
+    for (const collection of this._collections) {
       if (rx.test(collection.name)) {
         return collection;
       }
@@ -68,7 +74,8 @@ export async function getCurrentWorkspaces(): Promise<Array<Workspace>> {
     for (const workspace of res.data) {
       workspaces.push(new Workspace(workspace as IWorkspace));
     }
+  } else {
+    console.warn(`Could not process workspaces for current user!`);
   }
-  console.warn(`Could not process workspaces for current user!`);
   return workspaces;
 }

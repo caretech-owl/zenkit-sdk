@@ -13,6 +13,32 @@ export enum FieldCategory {
   REFERENCES = 16,
 }
 
+const FIELD_TYPE: { [key: number]: string } = {
+  [FieldCategory.TEXT]: "string",
+  [FieldCategory.NUMBER]: "number",
+  [FieldCategory.LINK]: "string",
+  [FieldCategory.DATE]: "string",
+  [FieldCategory.CATEGORIES]: "object",
+  [FieldCategory.CREATION_DATE]: "string",
+  [FieldCategory.UPDATED_DATE]: "string",
+  [FieldCategory.CREATION_USER]: "number",
+  [FieldCategory.UPDATED_USER]: "number",
+  [FieldCategory.PERSONS]: "object",
+  [FieldCategory.ATTACHEMENTS]: "object",
+  [FieldCategory.REFERENCES]: "object",
+};
+
+const FIELD_SUFFIX: { [key: number]: string } = {
+  [FieldCategory.TEXT]: "text",
+  [FieldCategory.NUMBER]: "number",
+  [FieldCategory.LINK]: "link",
+  [FieldCategory.DATE]: "date",
+  [FieldCategory.CATEGORIES]: "categories",
+  [FieldCategory.PERSONS]: "persons",
+  [FieldCategory.ATTACHEMENTS]: "files",
+  [FieldCategory.REFERENCES]: "references",
+};
+
 interface ICategory {
   id: number;
   uuid: string;
@@ -20,7 +46,7 @@ interface ICategory {
   color: string; // TODO make ColorStringType
 }
 
-export interface IElement {
+interface IElement {
   id: number;
   uuid: string;
   name: string;
@@ -31,4 +57,52 @@ export interface IElement {
   elementData: {
     predefinedCategories?: Array<ICategory>;
   };
+}
+
+export class Element implements IElement {
+  _element: IElement;
+
+  constructor(element: any) {
+    this._element = element as IElement;
+  }
+
+  get id() {
+    return this._element.id;
+  }
+
+  get uuid() {
+    return this._element.uuid;
+  }
+
+  get name() {
+    return this._element.name;
+  }
+
+  get description() {
+    return this._element.description;
+  }
+
+  get isPrimary() {
+    return this._element.isPrimary;
+  }
+
+  get sortOrder() {
+    return this._element.sortOrder;
+  }
+
+  get elementcategory() {
+    return this._element.elementcategory;
+  }
+
+  get type() {
+    return FIELD_TYPE[this._element.elementcategory];
+  }
+
+  get elementData() {
+    return this._element.elementData;
+  }
+
+  get fieldName() {
+    return `${this.uuid}_${FIELD_SUFFIX[this.elementcategory]}`;
+  }
 }

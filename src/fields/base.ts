@@ -5,19 +5,14 @@ export type FieldValueTypes = string | number | null | boolean | object;
 export type FieldArrayType = Array<FieldValueTypes>;
 
 export abstract class FieldBase<T> {
-  id: string;
   entry: IEntry;
   edited: boolean;
-  abstract suffix: string;
+  name: string;
 
-  constructor(id: string, entry: IEntry) {
-    this.id = id;
+  constructor(name: string, entry: IEntry) {
     this.entry = entry;
     this.edited = false;
-  }
-
-  get name(): string {
-    return `${this.id}_${this.suffix}`;
+    this.name = name;
   }
 
   get value(): FieldType {

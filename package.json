@@ -2,10 +2,11 @@
   "name": "zenkit-sdk",
   "version": "0.1.0",
   "description": "",
-  "main": "dist/index.js",
+  "main": "build/src/zenkit.js",
   "scripts": {
     "build": "tsc",
-    "test": "jest"
+    "test": "jest",
+    "example": "tsc && node build/examples/hello.js"
   },
   "author": "Alexander Neumann",
   "license": "MIT",

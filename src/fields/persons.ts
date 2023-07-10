@@ -1,5 +1,3 @@
 import { ArrayField } from "./base";
 
-export default class PersonsField extends ArrayField<number> {
-  suffix: string = "persons";
-}
+export default class PersonsField extends ArrayField<number> {}

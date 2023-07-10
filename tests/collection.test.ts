@@ -1,5 +1,3 @@
-import { EP_GET_CURRENT_USER, EP_GET_WORKSPACES } from "../src/config";
-import Zenkit from "../src/zenkit";
 import axios from "axios";
 
 import * as workspacesJsonData from "./data/test_collection_workspaces.json";
