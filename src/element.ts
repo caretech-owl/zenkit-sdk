@@ -39,7 +39,7 @@ const FIELD_SUFFIX: { [key: number]: string } = {
   [FieldCategory.REFERENCES]: "references",
 };
 
-interface ICategory {
+export interface ICategory {
   id: number;
   uuid: string;
   name: string;
@@ -55,6 +55,7 @@ interface IElement {
   sortOrder: number;
   elementcategory: FieldCategory;
   elementData: {
+    multiple?: boolean;
     predefinedCategories?: Array<ICategory>;
   };
 }
@@ -104,5 +105,33 @@ export class Element implements IElement {
 
   get fieldName() {
     return `${this.uuid}_${FIELD_SUFFIX[this.elementcategory]}`;
+  }
+
+  get labels(): ICategory[] {
+    const res = [];
+    for (const cat of this.elementData.predefinedCategories || []) {
+      res.push(cat as ICategory);
+    }
+    return res;
+  }
+
+  public getTypeScriptEnum(): string {
+    const vals = [];
+    for (const cat of this.elementData.predefinedCategories || []) {
+      vals.push(`    ${cat.name.toUpperCase().replace(" ", "_")} = ${cat.id},`);
+    }
+    return `enum ${this.name.toUpperCase().replace(" ", "_")} {
+${vals.join("\n")}
+};`;
+  }
+
+  public label(regex: string): ICategory | null {
+    const rx = new RegExp(regex);
+    for (const category of this.elementData.predefinedCategories || []) {
+      if (rx.test(category.name)) {
+        return category;
+      }
+    }
+    return null;
   }
 }

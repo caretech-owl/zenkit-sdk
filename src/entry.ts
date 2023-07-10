@@ -1,10 +1,10 @@
 import axios from "axios";
 import { Element, FieldCategory } from "./element";
 import {
-  ArrayField,
   FieldType,
-  FieldValueTypes,
+  FieldValueType,
   ValueField,
+  ValueFieldType,
 } from "./fields/base";
 import CategoriesField from "./fields/categories";
 import DateField from "./fields/date";
@@ -26,7 +26,7 @@ export interface IEntry {
   displayString: string;
   comment_count: number;
   listId: number;
-  [key: string]: FieldType;
+  [key: string]: FieldValueType;
   //   [key: `${string}_text`]: string;
   //   [key: `${string}_date`]: string; // TODO make DateStringType YYYY-MM-DD (HH:mm:ss)
   //   [key: `${string}_link`]: string;
@@ -35,7 +35,9 @@ export interface IEntry {
   //   [key: `${string}_categories`]: Array<number>;
 }
 
-const FieldMap: { [key: number]: any } = {
+const FieldMap: {
+  [key: number]: new (entry: IEntry, element: Element) => FieldType;
+} = {
   [FieldCategory.TEXT]: TextField,
   [FieldCategory.NUMBER]: NumberField,
   [FieldCategory.DATE]: DateField,
@@ -47,12 +49,9 @@ const FieldMap: { [key: number]: any } = {
 
 export class Entry {
   protected data: IEntry;
-  protected fields: Map<
-    string,
-    ArrayField<number | string> | ValueField<number | string>
-  >;
+  protected fields: Map<string, FieldType>;
 
-  private _key: ValueField<number | string> | null;
+  private _key: ValueField<ValueFieldType> | null;
 
   constructor(jsonData: IEntry, elements: Array<Element>) {
     this.data = jsonData;
@@ -61,10 +60,16 @@ export class Entry {
     for (const element of elements) {
       const cls = FieldMap[element.elementcategory];
       if (cls !== undefined) {
-        const entry = new cls(element.fieldName, this.data);
+        const entry = new cls(this.data as IEntry, element);
         this.fields.set(element.name, entry);
         if (element.isPrimary) {
-          this._key = entry;
+          if (entry instanceof ValueField) {
+            this._key = entry;
+          } else {
+            throw new Error(
+              "Currently only primitive value fields are supported as primary keys."
+            );
+          }
         }
       }
     }
@@ -87,15 +92,16 @@ export class Entry {
   }
 
   public async commit() {
-    const editData: { [key: string]: FieldType } = {};
+    const editData: { [key: string]: FieldValueType } = {};
     for (const field of this.fields.values()) {
       if (field.edited) {
-        editData[field.name] = field.value;
+        editData[field.element.fieldName] = field.value;
         field.edited = false;
       }
     }
+    console.log(editData);
     if (Object.keys(editData).length > 0) {
-      axios.put(
+      await axios.put(
         `${BASE_URL}/lists/${this.data.listId}/entries/${this.id}`,
         editData
       );

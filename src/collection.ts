@@ -2,7 +2,7 @@ import axios from "axios";
 import { BASE_URL } from "./config";
 import { IEntry, Entry } from "./entry";
 import { Element } from "./element";
-import { FieldValueTypes } from "./fields/base";
+import { ValueFieldType } from "./fields/base";
 
 export interface ICollection {
   id: number;
@@ -47,7 +47,7 @@ export class Collection {
   }
 
   public async createEntry(
-    primaryValue: FieldValueTypes,
+    primaryValue: ValueFieldType,
     data = {}
   ): Promise<Entry> {
     const key = this.primaryKey;
