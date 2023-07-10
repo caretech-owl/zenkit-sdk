@@ -64,12 +64,12 @@ export class Collection {
     return res.status === 200;
   }
 
-  // public async removeUser(user: IUser): Promise<boolean> {
-  //   const res = await axios.delete(`${BASE_URL}/lists/${this.id}/users`, {
-  //     data: { userUUID:  user.uuid},
-  //   });
-  //   return res.status === 200;
-  // }
+  public async removeUser(user: IUser): Promise<boolean> {
+    const res = await axios.delete(
+      `${BASE_URL}/lists/${this.id}/users/${user.id}`
+    );
+    return res.status === 200;
+  }
 
   public listEntries(): Array<{ key: string; id: number }> {
     return this._entries.map((ent) => {
