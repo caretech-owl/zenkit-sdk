@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "description": "",
   "main": "build/src/zenkit.js",
+  "typing": "build/src/zenkit.d.ts",
   "scripts": {
     "build": "tsc",
     "test": "jest",
