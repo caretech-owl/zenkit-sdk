@@ -9,8 +9,10 @@ const API_KEY = process.env.ZENKIT_API_KEY;
 export const EP_GET_CURRENT_USER = BASE_URL + "/auth/currentuser";
 export const EP_GET_WORKSPACES = BASE_URL + "/users/me/workspacesWithLists";
 
-axios.interceptors.request.use(function (config) {
-  config.headers["Content-Type"] = "application/json";
+axios.interceptors.request.use((config) => {
+  if (!("Content-Type" in config.headers)) {
+    config.headers["Content-Type"] = "application/json";
+  }
   config.headers["Zenkit-API-Key"] = API_KEY;
   return config;
 });

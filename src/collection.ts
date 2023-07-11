@@ -4,6 +4,12 @@ import { IEntry, Entry } from "./entry";
 import { Element } from "./element";
 import { ValueFieldType } from "./fields/base";
 import { IUser } from "./user";
+import IComment from "./comment";
+import { open } from "node:fs/promises";
+import FormData from "form-data";
+import { IWebhook, TriggerType } from "./webhook";
+import { basename } from "path";
+import { IFile } from "./file";
 
 export interface ICollection {
   id: number;
@@ -75,6 +81,67 @@ export class Collection {
     return this._entries.map((ent) => {
       return { key: ent.primaryKey, id: ent.id };
     });
+  }
+
+  public async getComments(limit = 100): Promise<Array<IComment>> {
+    const res = await axios.get(
+      `${BASE_URL}/lists/${this.id}/activities?filter=2&limit=${limit}`
+    );
+    return (res.data.activities || []) as Array<IComment>;
+  }
+
+  public async addFile(filePath: string): Promise<IFile | null> {
+    const form = new FormData();
+    const file = await open(filePath);
+    if (file) {
+      form.append("file", file.createReadStream(), basename(filePath));
+      const res = await axios.post(`${BASE_URL}/lists/${this.id}/files`, form, {
+        headers: {
+          ...form.getHeaders(),
+        },
+      });
+      return res.data as IFile;
+    }
+    return null;
+  }
+
+  public async comment(
+    message: string,
+    parent?: string,
+    fileId?: number
+  ): Promise<boolean> {
+    const payload: any = { message: message };
+    if (parent) {
+      payload["parentUUID"] = parent;
+    }
+    if (fileId) {
+      payload["enrichments"] = [
+        {
+          fileId: fileId,
+          type: "File",
+        },
+      ];
+    }
+    const res = await axios.post(
+      `${BASE_URL}/users/me/lists/${this.id}/activities`,
+      payload
+    );
+    console.log(res.data);
+    return res.status === 200;
+  }
+
+  public async createCommentWebhook(address: string): Promise<IWebhook> {
+    const res = await axios.post(`${BASE_URL}/webhooks`, {
+      triggerType: TriggerType,
+      url: address,
+      listId: this.id,
+    });
+    return res.data as IWebhook;
+  }
+
+  public async listWebhooks(): Promise<Array<IWebhook>> {
+    const res = await axios.get(`${BASE_URL}/webhooks/list/${this.id}`);
+    return res.data as Array<IWebhook>;
   }
 
   public async createEntry(

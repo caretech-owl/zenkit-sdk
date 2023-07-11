@@ -24,10 +24,24 @@ const main = async () => {
   await collection.populate();
   console.log(collection.primaryKey);
   console.log(collection.listEntries());
-  console.log(collection.data);
+  // console.log(collection.data);
   const workspaceUsers = await workspace.listUsers();
+  console.log(workspaceUsers);
   const alex = workspaceUsers.find((user) => user.initials === "AN")!;
-  console.log(await collection.addUser(alex));
+  // const comments = await collection.getComments();
+  // await collection.addFile("./picture_new.jpg");
+  // await collection.comment("", "353025eb-628c-40d2-9207-c68f4bc5c7e0", 8431159);
+  // console.log(await listUserWebhooks(alex));
+  // const webhooks = await collection.listWebhooks();
+  // console.log(webhooks);
+  // console.log(collection.id);
+  // await silenceAll();
+  // await collection.createCommentWebhook(
+  //   "https://zenkit.bixd.de/v1/lists/12345/activities"
+  // );
+
+  // await collection.addUser(alex);
+  // await collection.removeUser(alex);
   // console.log(await collection.removeUser());
   // console.log(await collection.addUser());
   // const entry = collection.entry(1)!;

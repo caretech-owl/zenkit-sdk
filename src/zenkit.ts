@@ -1,4 +1,7 @@
+import axios from "axios";
+import { BASE_URL } from "./config";
 import { IUser, getCurrentUser } from "./user";
+import { IWebhook } from "./webhook";
 import { Workspace, getCurrentWorkspaces } from "./workspace";
 
 export default class Zenkit {
@@ -12,6 +15,11 @@ export default class Zenkit {
 
   get my(): IUser {
     return this.user;
+  }
+
+  public async listWebhooks(): Promise<Array<IWebhook>> {
+    const res = await axios.get(`${BASE_URL}/webhooks/user/${this.my.id}`);
+    return res.data as Array<IWebhook>;
   }
 
   public static async createAsync(): Promise<Zenkit> {

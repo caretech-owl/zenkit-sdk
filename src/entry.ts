@@ -84,6 +84,16 @@ export class Entry {
     return Array.from(this.fields.keys());
   }
 
+  public async createCommentWebhook(address: string): Promise<boolean> {
+    const res = await axios.post(`${BASE_URL}/webhooks`, {
+      triggerType: 4, // Comments
+      url: address,
+      listId: this.data.listId,
+      listEntryId: this.id,
+    });
+    return res.status === 200;
+  }
+
   get id(): number {
     return this.data.id;
   }
