@@ -2,12 +2,12 @@
   "name": "@caretech-owl/zenkit-sdk",
   "version": "0.1.0",
   "description": "An SDK to develop extension services for Zenkit",
-  "main": "build/src/zenkit.js",
-  "types": "./build/src/zenkit.d.ts",
+  "main": "dist/src/zenkit.js",
+  "types": "dist/src/zenkit.d.ts",
   "scripts": {
     "build": "tsc",
     "test": "jest",
-    "example": "tsc && node build/examples/hello.js"
+    "example": "tsc && node dist/examples/hello.js"
   },
   "author": "Alexander Neumann",
   "license": "MIT",
@@ -23,6 +23,13 @@
     "axios": "^1.4.0",
     "dotenv": "^16.3.1"
   },
+  "files": [
+    "dist",
+    "LICENSE",
+    "Readme.md",
+    "package.json",
+    "Changelog.md"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/caretech-owl/zenkit-sdk.git"

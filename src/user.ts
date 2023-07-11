@@ -70,5 +70,4 @@ export async function silenceAll() {
       },
     }
   );
-  console.log(res.status);
 }

@@ -134,7 +134,6 @@ export class Collection {
       `${BASE_URL}/users/me/lists/${this.id}/activities`,
       payload
     );
-    console.log(res.data);
     return res.status === 200;
   }
 

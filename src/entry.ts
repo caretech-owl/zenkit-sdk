@@ -129,7 +129,6 @@ export class Entry {
         field.edited = false;
       }
     }
-    console.log(editData);
     if (Object.keys(editData).length > 0) {
       await axios.put(
         `${BASE_URL}/lists/${this.data.listId}/entries/${this.id}`,
