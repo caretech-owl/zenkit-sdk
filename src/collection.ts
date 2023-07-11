@@ -140,7 +140,7 @@ export class Collection {
 
   public async createCommentWebhook(address: string): Promise<IWebhook> {
     const res = await axios.post(`${BASE_URL}/webhooks`, {
-      triggerType: TriggerType,
+      triggerType: TriggerType.COMMENT,
       url: address,
       listId: this.id,
     });
