@@ -84,7 +84,7 @@ export class Collection {
     });
   }
 
-  public async getComments(limit = 100): Promise<Array<IComment>> {
+  public async listComments(limit = 100): Promise<Array<IComment>> {
     const res = await axios.get(
       `${BASE_URL}/lists/${this.id}/activities?filter=2&limit=${limit}`
     );
@@ -100,7 +100,7 @@ export class Collection {
   }
 
   public async addFile(
-    data: ReadStream | Blob,
+    data: ReadStream | Buffer,
     fileName: string
   ): Promise<IFile> {
     const form = new FormData();
