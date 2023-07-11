@@ -18,7 +18,7 @@ export default class Zenkit {
   }
 
   public async listWebhooks(): Promise<Array<IWebhook>> {
-    const res = await axios.get(`${BASE_URL}/webhooks/user/${this.my.id}`);
+    const res = await axios.get(`${BASE_URL}/users/me/webhooks`);
     return res.data as Array<IWebhook>;
   }
 
