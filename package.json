@@ -1,9 +1,9 @@
 {
-  "name": "zenkit-sdk",
+  "name": "@caretech-owl/zenkit-sdk",
   "version": "0.1.0",
-  "description": "",
+  "description": "An SDK to develop extension services for Zenkit",
   "main": "build/src/zenkit.js",
-  "typing": "build/src/zenkit.d.ts",
+  "types": "./build/src/zenkit.d.ts",
   "scripts": {
     "build": "tsc",
     "test": "jest",
@@ -22,5 +22,16 @@
   "dependencies": {
     "axios": "^1.4.0",
     "dotenv": "^16.3.1"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/caretech-owl/zenkit-sdk.git"
+  },
+  "keywords": [
+    "zenkit"
+  ],
+  "bugs": {
+    "url": "https://github.com/caretech-owl/zenkit-sdk/issues"
+  },
+  "homepage": "https://github.com/caretech-owl/zenkit-sdk#readme"
 }
