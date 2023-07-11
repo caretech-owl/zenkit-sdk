@@ -6,6 +6,7 @@ import { ValueFieldType } from "./fields/base";
 import { IUser } from "./user";
 import IComment from "./comment";
 import { open } from "node:fs/promises";
+import { ReadStream } from "fs";
 import FormData from "form-data";
 import { IWebhook, TriggerType } from "./webhook";
 import { basename } from "path";
@@ -90,19 +91,26 @@ export class Collection {
     return (res.data.activities || []) as Array<IComment>;
   }
 
-  public async addFile(filePath: string): Promise<IFile | null> {
-    const form = new FormData();
+  public async uploadFile(filePath: string): Promise<IFile | null> {
     const file = await open(filePath);
     if (file) {
-      form.append("file", file.createReadStream(), basename(filePath));
-      const res = await axios.post(`${BASE_URL}/lists/${this.id}/files`, form, {
-        headers: {
-          ...form.getHeaders(),
-        },
-      });
-      return res.data as IFile;
+      return await this.addFile(file.createReadStream(), basename(filePath));
     }
     return null;
+  }
+
+  public async addFile(
+    data: ReadStream | Blob,
+    fileName: string
+  ): Promise<IFile> {
+    const form = new FormData();
+    form.append("file", data, fileName);
+    const res = await axios.post(`${BASE_URL}/lists/${this.id}/files`, form, {
+      headers: {
+        ...form.getHeaders(),
+      },
+    });
+    return res.data as IFile;
   }
 
   public async comment(
