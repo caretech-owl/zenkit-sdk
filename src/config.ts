@@ -13,6 +13,8 @@ axios.interceptors.request.use((config) => {
   if (!("Content-Type" in config.headers)) {
     config.headers["Content-Type"] = "application/json";
   }
-  config.headers["Zenkit-API-Key"] = API_KEY;
+  if (config.url?.startsWith(BASE_URL)) {
+    config.headers["Zenkit-API-Key"] = API_KEY;
+  }
   return config;
 });
