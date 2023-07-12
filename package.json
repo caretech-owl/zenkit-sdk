@@ -7,7 +7,7 @@
   "scripts": {
     "build": "tsc",
     "test": "jest",
-    "example": "tsc && node dist/examples/hello.js"
+    "scratch": "tsc && node dist/examples/scratchpad.js"
   },
   "author": "Alexander Neumann",
   "license": "MIT",
