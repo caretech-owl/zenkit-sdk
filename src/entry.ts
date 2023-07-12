@@ -122,7 +122,7 @@ export class Entry {
     return res.status === 200;
   }
 
-  public async getComments(userId?: number): Promise<Array<IComment>> {
+  public async listComments(): Promise<Array<IComment>> {
     const res = await axios.get(
       `${BASE_URL}/lists/${this.data.listId}/entries/${this.id}/activities?filter=2`
     );
