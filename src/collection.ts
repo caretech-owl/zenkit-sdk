@@ -8,6 +8,28 @@ import IComment, { comment } from "./comment";
 import { IWebhook, TriggerType, createWebhook } from "./webhook";
 import { IFile, addFile, uploadFile } from "./file";
 import { ReadStream } from "fs";
+import { IGroup } from "./group";
+
+export enum ICollectionPermission {
+  ADMIN = "listAdmin",
+  USER = "listUser",
+  CONTRIBUTOR = "listContributor",
+  COMMENTER = "commentOnlyListUser",
+  WRITE_ONLY = "writeOnlyListUser",
+  READ_ONLY = "readOnlyListUser",
+}
+
+export interface ICollectionAccess {
+  uuid: string;
+  workspaceId: number;
+  userId: number;
+  groupId: number | null;
+  roleId: ICollectionPermission;
+  provider: any | null;
+  providerData: any | null;
+  elementRestrictions: any | null;
+  entryRestrictions: any | null;
+}
 
 export interface ICollection {
   id: number;
@@ -47,32 +69,51 @@ export class Collection {
     return this._elements || [];
   }
 
-  public async listUsers(): Promise<Array<IUser>> {
-    const res = await axios.get(`${BASE_URL}/lists/${this.id}/users`);
-    const users = res.data as Array<IUser>;
-    if (this.data.visibility === 1) {
-      const res2 = await axios.get(
-        `${BASE_URL}/workspaces/${this.data.workspaceId}/users`
-      );
-      for (const user of res2.data as Array<IUser>) {
-        users.push(user);
-      }
-    }
-    return users;
-  }
-
-  public async addUser(user: IUser): Promise<boolean> {
-    const res = await axios.post(`${BASE_URL}/lists/${this.id}/users`, {
-      userUUID: user.uuid,
-    });
-    return res.status === 200;
-  }
-
-  public async removeUser(user: IUser): Promise<boolean> {
-    const res = await axios.delete(
-      `${BASE_URL}/lists/${this.id}/users/${user.id}`
+  public async listAccessInfo(): Promise<{
+    users: Array<IUser>;
+    accesses: Array<ICollectionAccess>;
+    groups: Array<IGroup>;
+  }> {
+    const res = await axios.get(`${BASE_URL}/lists/${this.id}/accesses`);
+    // console.log(res.data);
+    return (
+      (res.data as {
+        users: Array<IUser>;
+        accesses: Array<ICollectionAccess>;
+        groups: Array<IGroup>;
+      }) || []
     );
-    return res.status === 200;
+  }
+
+  public async addUser(
+    userUUID: string,
+    role: ICollectionPermission
+  ): Promise<string> {
+    const res = await axios.post(`${BASE_URL}/lists/${this.id}/accesses`, {
+      roleId: role,
+      userUUID: userUUID,
+    });
+    return res.data;
+  }
+
+  public async setAccess(
+    access: ICollectionAccess,
+    role: ICollectionPermission
+  ): Promise<ICollectionAccess> {
+    const res = await axios.put(
+      `${BASE_URL}/lists/${this.id}/accesses/${access.uuid}`,
+      { roleId: role }
+    );
+    return res.data.access as ICollectionAccess;
+  }
+
+  public async removeAccess(
+    access: ICollectionAccess
+  ): Promise<ICollectionAccess> {
+    const res = await axios.delete(
+      `${BASE_URL}/lists/${this.id}/accesses/${access.uuid}`
+    );
+    return res.data.access as ICollectionAccess;
   }
 
   public listEntries(): Array<{ key: string; id: number }> {

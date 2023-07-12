@@ -4,8 +4,27 @@ import { Collection, ICollection } from "./collection";
 import { IUser } from "./user";
 import { ReadStream } from "fs";
 import { IFile, addFile, uploadFile } from "./file";
-import { comment } from "./comment";
+import IComment, { comment } from "./comment";
 import { IWebhook, TriggerType, createWebhook } from "./webhook";
+import { IGroup } from "./group";
+
+export enum IWorkspacePermission {
+  ADMIN = "workspaceAdmin",
+  USER = "workspaceUser",
+  CONTRIBUTOR = "workspaceContributor",
+  COMMENTER = "commentOnlyWorkspaceUser",
+  WRITE_ONLY = "writeOnlyWorkspaceUser",
+  READ_ONLY = "readOnlyWorkspaceUser",
+  // "roleId": "listAdmin"|"listUser"|"listContributor"|"commentOnlyListUser"|"writeOnlyListUser"|"readOnlyListUser" }
+}
+
+export interface IWorkspaceAccess {
+  uuid: string;
+  workspaceId: number;
+  userId: number;
+  groupId: number | null;
+  roleId: IWorkspacePermission;
+}
 
 export interface IWorkspace {
   name: string;
@@ -38,12 +57,6 @@ export class Workspace {
     return this._collections.map((col) => {
       return { name: col.name, id: col.id };
     });
-  }
-
-  public async listUsers(): Promise<Array<IUser>> {
-    const res = await axios.get(`${BASE_URL}/workspaces/${this.id}/users`);
-    const users = res.data as Array<IUser>;
-    return users;
   }
 
   public collection(id: number): Collection | null;
@@ -79,6 +92,60 @@ export class Workspace {
 
   public async createCommentWebhook(address: string): Promise<IWebhook | null> {
     return createWebhook(address, TriggerType.COMMENT, this.id, null, null);
+  }
+
+  public async listAccessInfo(): Promise<{
+    users: Array<IUser>;
+    accesses: Array<IWorkspaceAccess>;
+    groups: Array<IGroup>;
+  }> {
+    const res = await axios.get(`${BASE_URL}/workspaces/${this.id}/accesses`);
+    // console.log(res.data);
+    return (
+      (res.data as {
+        users: Array<IUser>;
+        accesses: Array<IWorkspaceAccess>;
+        groups: Array<IGroup>;
+      }) || []
+    );
+  }
+
+  public async addUser(
+    userUUID: string,
+    role: IWorkspacePermission
+  ): Promise<string> {
+    const res = await axios.post(`${BASE_URL}/workspaces/${this.id}/accesses`, {
+      roleId: role,
+      userUUID: userUUID,
+    });
+    return res.data;
+  }
+
+  public async setAccess(
+    access: IWorkspaceAccess,
+    role: IWorkspacePermission
+  ): Promise<IWorkspaceAccess> {
+    const res = await axios.put(
+      `${BASE_URL}/workspaces/${this.id}/accesses/${access.uuid}`,
+      { roleId: role }
+    );
+    return res.data.access as IWorkspaceAccess;
+  }
+
+  public async removeAccess(
+    access: IWorkspaceAccess
+  ): Promise<IWorkspaceAccess> {
+    const res = await axios.delete(
+      `${BASE_URL}/workspaces/${this.id}/accesses/${access.uuid}`
+    );
+    return res.data.access as IWorkspaceAccess;
+  }
+
+  public async listComments(limit = 100): Promise<Array<IComment>> {
+    const res = await axios.get(
+      `${BASE_URL}/workspaces/${this.id}/activities?filter=2&limit=${limit}`
+    );
+    return (res.data.activities || []) as Array<IComment>;
   }
 
   public async uploadFile(filePath: string): Promise<IFile | null> {
