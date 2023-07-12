@@ -14,7 +14,7 @@ import ReferencesField from "./fields/references";
 import TextField from "./fields/text";
 import { BASE_URL } from "./config";
 import NumberField from "./fields/number";
-import IComment from "./comment";
+import IComment, { comment } from "./comment";
 
 export interface IEntry {
   id: number;
@@ -103,23 +103,12 @@ export class Entry {
     parent?: string,
     fileId?: number
   ): Promise<boolean> {
-    const payload: any = { message: message };
-    if (parent) {
-      payload["parentUUID"] = parent;
-    }
-    if (fileId) {
-      payload["enrichments"] = [
-        {
-          fileId: fileId,
-          type: "File",
-        },
-      ];
-    }
-    const res = await axios.post(
+    return comment(
+      message,
       `${BASE_URL}/users/me/lists/${this.data.listId}/entries/${this.id}/activities`,
-      payload
+      parent,
+      fileId
     );
-    return res.status === 200;
   }
 
   public async listComments(): Promise<Array<IComment>> {

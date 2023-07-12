@@ -4,13 +4,10 @@ import { IEntry, Entry } from "./entry";
 import { Element } from "./element";
 import { ValueFieldType } from "./fields/base";
 import { IUser } from "./user";
-import IComment from "./comment";
-import { open } from "node:fs/promises";
-import { ReadStream } from "fs";
-import FormData from "form-data";
+import IComment, { comment } from "./comment";
 import { IWebhook, TriggerType } from "./webhook";
-import { basename } from "path";
-import { IFile } from "./file";
+import { IFile, addFile, uploadFile } from "./file";
+import { ReadStream } from "fs";
 
 export interface ICollection {
   id: number;
@@ -92,25 +89,14 @@ export class Collection {
   }
 
   public async uploadFile(filePath: string): Promise<IFile | null> {
-    const file = await open(filePath);
-    if (file) {
-      return await this.addFile(file.createReadStream(), basename(filePath));
-    }
-    return null;
+    return uploadFile(filePath, `${BASE_URL}/lists/${this.id}/files`);
   }
 
   public async addFile(
     data: ReadStream | Buffer,
     fileName: string
   ): Promise<IFile> {
-    const form = new FormData();
-    form.append("file", data, fileName);
-    const res = await axios.post(`${BASE_URL}/lists/${this.id}/files`, form, {
-      headers: {
-        ...form.getHeaders(),
-      },
-    });
-    return res.data as IFile;
+    return addFile(data, fileName, `${BASE_URL}/lists/${this.id}/files`);
   }
 
   public async comment(
@@ -118,23 +104,12 @@ export class Collection {
     parent?: string,
     fileId?: number
   ): Promise<boolean> {
-    const payload: any = { message: message };
-    if (parent) {
-      payload["parentUUID"] = parent;
-    }
-    if (fileId) {
-      payload["enrichments"] = [
-        {
-          fileId: fileId,
-          type: "File",
-        },
-      ];
-    }
-    const res = await axios.post(
+    return comment(
+      message,
       `${BASE_URL}/users/me/lists/${this.id}/activities`,
-      payload
+      parent,
+      fileId
     );
-    return res.status === 200;
   }
 
   public async createCommentWebhook(address: string): Promise<IWebhook> {

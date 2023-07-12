@@ -2,6 +2,9 @@ import axios from "axios";
 import { BASE_URL, EP_GET_WORKSPACES } from "./config";
 import { Collection, ICollection } from "./collection";
 import { IUser } from "./user";
+import { ReadStream } from "fs";
+import { IFile, addFile, uploadFile } from "./file";
+import { comment } from "./comment";
 
 export interface IWorkspace {
   name: string;
@@ -12,7 +15,7 @@ export interface IWorkspace {
 
 export class Workspace {
   data: IWorkspace;
-  _collections: Array<Collection>;
+  private _collections: Array<Collection>;
 
   constructor(jsonData: IWorkspace) {
     this.data = jsonData;
@@ -30,7 +33,7 @@ export class Workspace {
     return this.data.name;
   }
 
-  listCollections(): Array<{ name: string; id: number }> {
+  get collections(): Array<{ id: number; name: string }> {
     return this._collections.map((col) => {
       return { name: col.name, id: col.id };
     });
@@ -71,6 +74,30 @@ export class Workspace {
       }
     }
     return null;
+  }
+
+  public async uploadFile(filePath: string): Promise<IFile | null> {
+    return uploadFile(filePath, `${BASE_URL}/workspaces/${this.id}/files`);
+  }
+
+  public async addFile(
+    data: ReadStream | Buffer,
+    fileName: string
+  ): Promise<IFile> {
+    return addFile(data, fileName, `${BASE_URL}/workspaces/${this.id}/files`);
+  }
+
+  public async comment(
+    message: string,
+    parent?: string,
+    fileId?: number
+  ): Promise<boolean> {
+    return comment(
+      message,
+      `${BASE_URL}/users/me/workspaces/${this.id}/activities`,
+      parent,
+      fileId
+    );
   }
 }
 
