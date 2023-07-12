@@ -5,7 +5,7 @@ import { Element } from "./element";
 import { ValueFieldType } from "./fields/base";
 import { IUser } from "./user";
 import IComment, { comment } from "./comment";
-import { IWebhook, TriggerType } from "./webhook";
+import { IWebhook, TriggerType, createWebhook } from "./webhook";
 import { IFile, addFile, uploadFile } from "./file";
 import { ReadStream } from "fs";
 
@@ -112,13 +112,8 @@ export class Collection {
     );
   }
 
-  public async createCommentWebhook(address: string): Promise<IWebhook> {
-    const res = await axios.post(`${BASE_URL}/webhooks`, {
-      triggerType: TriggerType.COMMENT,
-      url: address,
-      listId: this.id,
-    });
-    return res.data as IWebhook;
+  public async createCommentWebhook(address: string): Promise<IWebhook | null> {
+    return createWebhook(address, TriggerType.COMMENT, null, this.id, null);
   }
 
   public async listWebhooks(): Promise<Array<IWebhook>> {

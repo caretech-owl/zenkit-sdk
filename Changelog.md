@@ -2,6 +2,7 @@
 
 ## Release 0.1.4
 
+- add createWebhook to Workspace, Collection and Entry
 - add collection filter to zenkit object
 - add workspace property to zenkit object to discover workspaces easily
 - rename private workspaces field in zenkit to _workspaces

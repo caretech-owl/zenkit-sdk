@@ -17,6 +17,7 @@ import NumberField from "./fields/number";
 import IComment, { comment } from "./comment";
 import { IFile, addFile, uploadFile } from "./file";
 import { ReadStream } from "fs";
+import { IWebhook, TriggerType, createWebhook } from "./webhook";
 
 export interface IEntry {
   id: number;
@@ -86,18 +87,18 @@ export class Entry {
     return Array.from(this.fields.keys());
   }
 
-  public async createCommentWebhook(address: string): Promise<boolean> {
-    const res = await axios.post(`${BASE_URL}/webhooks`, {
-      triggerType: 4, // Comments
-      url: address,
-      listId: this.data.listId,
-      listEntryId: this.id,
-    });
-    return res.status === 200;
-  }
-
   get id(): number {
     return this.data.id;
+  }
+
+  public async createCommentWebhook(address: string): Promise<IWebhook | null> {
+    return createWebhook(
+      address,
+      TriggerType.COMMENT,
+      null,
+      this.data.listId,
+      this.id
+    );
   }
 
   public async comment(

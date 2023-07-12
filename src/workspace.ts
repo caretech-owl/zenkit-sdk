@@ -5,6 +5,7 @@ import { IUser } from "./user";
 import { ReadStream } from "fs";
 import { IFile, addFile, uploadFile } from "./file";
 import { comment } from "./comment";
+import { IWebhook, TriggerType, createWebhook } from "./webhook";
 
 export interface IWorkspace {
   name: string;
@@ -74,6 +75,10 @@ export class Workspace {
       }
     }
     return null;
+  }
+
+  public async createCommentWebhook(address: string): Promise<IWebhook | null> {
+    return createWebhook(address, TriggerType.COMMENT, this.id, null, null);
   }
 
   public async uploadFile(filePath: string): Promise<IFile | null> {
