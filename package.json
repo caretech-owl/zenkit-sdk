@@ -1,6 +1,6 @@
 {
   "name": "@caretech-owl/zenkit-sdk",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "An SDK to develop extension services for Zenkit",
   "main": "dist/src/zenkit.js",
   "types": "dist/src/zenkit.d.ts",
