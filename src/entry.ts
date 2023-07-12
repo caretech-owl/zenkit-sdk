@@ -100,13 +100,25 @@ export class Entry {
 
   public async comment(
     message: string,
-    parent: string | null = null
+    parent?: string,
+    fileId?: number
   ): Promise<boolean> {
+    const payload: any = { message: message };
+    if (parent) {
+      payload["parentUUID"] = parent;
+    }
+    if (fileId) {
+      payload["enrichments"] = [
+        {
+          fileId: fileId,
+          type: "File",
+        },
+      ];
+    }
     const res = await axios.post(
       `${BASE_URL}/users/me/lists/${this.data.listId}/entries/${this.id}/activities`,
-      { message: message, parentUUID: parent }
+      payload
     );
-
     return res.status === 200;
   }
 
