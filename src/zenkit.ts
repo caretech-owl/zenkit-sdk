@@ -3,18 +3,25 @@ import { BASE_URL } from "./config";
 import { IUser, getCurrentUser } from "./user";
 import { IWebhook } from "./webhook";
 import { Workspace, getCurrentWorkspaces } from "./workspace";
+import { Collection } from "./collection";
 
 export default class Zenkit {
   private user: IUser;
-  private workspaces: Array<Workspace>;
+  private _workspaces: Array<Workspace>;
 
   private constructor(user: IUser, workspaces: Array<Workspace>) {
     this.user = user;
-    this.workspaces = workspaces;
+    this._workspaces = workspaces;
   }
 
   get my(): IUser {
     return this.user;
+  }
+
+  get workspaces(): Array<{ id: number; name: string }> {
+    return this._workspaces.map((ws) => {
+      return { id: ws.id, name: ws.name };
+    });
   }
 
   public async listWebhooks(): Promise<Array<IWebhook>> {
@@ -43,8 +50,28 @@ export default class Zenkit {
     return null;
   }
 
+  public collection(id: number): Collection | null;
+  public collection(name: string): Collection | null;
+
+  public collection(param: unknown): Collection | null {
+    let collection = null;
+    let idx = 0;
+    if (typeof param === "number") {
+      while (collection === null && idx < this._workspaces.length) {
+        collection = this._workspaces[idx].collection(param);
+        idx += 1;
+      }
+    } else if (typeof param === "string") {
+      while (collection === null && idx < this._workspaces.length) {
+        collection = this._workspaces[idx].collection(param);
+        idx += 1;
+      }
+    }
+    return collection;
+  }
+
   private getWorkspaceByID(id: number): Workspace | null {
-    for (const workspace of this.workspaces) {
+    for (const workspace of this._workspaces) {
       if (workspace.id == id) {
         return workspace;
       }
@@ -54,7 +81,7 @@ export default class Zenkit {
 
   private getWorkspaceByName(regex: string): Workspace | null {
     const rx = new RegExp(regex);
-    for (const workspace of this.workspaces) {
+    for (const workspace of this._workspaces) {
       if (rx.test(workspace.name)) {
         return workspace;
       }
