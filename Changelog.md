@@ -5,6 +5,7 @@
 - add collection filter to zenkit object
 - add workspace property to zenkit object to discover workspaces easily
 - rename private workspaces field in zenkit to _workspaces
+- addFile, uploadFile, comment available on Workspace, Collection and Entry
 
 ## Release 0.1.3
 
