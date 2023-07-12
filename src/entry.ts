@@ -15,6 +15,8 @@ import TextField from "./fields/text";
 import { BASE_URL } from "./config";
 import NumberField from "./fields/number";
 import IComment, { comment } from "./comment";
+import { IFile, addFile, uploadFile } from "./file";
+import { ReadStream } from "fs";
 
 export interface IEntry {
   id: number;
@@ -120,6 +122,21 @@ export class Entry {
 
   get primaryKey(): string {
     return this._key?.value?.toString() || "";
+  }
+
+  public async uploadFile(filePath: string): Promise<IFile | null> {
+    return uploadFile(filePath, `${BASE_URL}/lists/${this.data.listId}/files`);
+  }
+
+  public async addFile(
+    data: ReadStream | Buffer,
+    fileName: string
+  ): Promise<IFile> {
+    return addFile(
+      data,
+      fileName,
+      `${BASE_URL}/lists/${this.data.listId}/files`
+    );
   }
 
   public async commit() {
