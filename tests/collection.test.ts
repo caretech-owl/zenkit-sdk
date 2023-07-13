@@ -3,7 +3,7 @@ import axios from "axios";
 import * as workspacesJsonData from "./data/test_collection_workspaces.json";
 import * as entriesJsonData from "./data/test_collection_entries.json";
 import * as elementJsonData from "./data/test_collection_elements.json";
-import { Collection } from "../src/collections";
+import { Collection } from "../src/collection";
 
 jest.mock("axios");
 const mockedAxios = axios as jest.Mocked<typeof axios>;
@@ -35,7 +35,7 @@ describe("Zenkit API operations", () => {
     expect(collection.entry(1)).toBeNull();
     expect(collection.entry("Eine Neue Aufgabe")).toBeNull();
     await collection.populate();
-    expect(collection.entry(1)?.key).toBe("Eine Neue Aufgabe");
+    expect(collection.entry(1)?.primaryKey).toBe("Eine Neue Aufgabe");
     expect(collection.entry("Eine Neue Aufgabe")?.id).toBe(1);
     expect(collection.entry(0)).toBeNull();
   });
@@ -46,7 +46,7 @@ describe("Zenkit API operations", () => {
     expect(collection.entry(1)).toBeNull();
     expect(collection.entry("Eine Neue Aufgabe")).toBeNull();
     await collection.populate();
-    expect(collection.entry(1)?.key).toBe("Eine Neue Aufgabe");
+    expect(collection.entry(1)?.primaryKey).toBe("Eine Neue Aufgabe");
     expect(collection.entry("Eine Neue Aufgabe")?.id).toBe(1);
     expect(collection.entry(0)).toBeNull();
   });
