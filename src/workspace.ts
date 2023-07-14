@@ -66,7 +66,7 @@ export class Workspace {
   public collection(id: number): Collection | null;
   public collection(name: string): Collection | null;
   public collection<T extends Collection>(
-    cls: (new (col: ICollection) => T) & { id: number }
+    cls: new (col: ICollection) => T
   ): T | null;
 
   public collection<T extends Collection>(

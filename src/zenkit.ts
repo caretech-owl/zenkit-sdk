@@ -54,14 +54,8 @@ export default class Zenkit {
 
   public collection(id: number): Collection | null;
   public collection(name: string): Collection | null;
-  public collection<
-    T extends Collection & { id: number; uuid: string; workspaceId: number }
-  >(
-    cls: (new (col: ICollection) => T) & {
-      id: number;
-      uuid: string;
-      workspaceId: number;
-    }
+  public collection<T extends Collection>(
+    cls: new (col: ICollection) => T
   ): T | null;
 
   public collection<T extends Collection>(
