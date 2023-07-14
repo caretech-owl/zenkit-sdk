@@ -31,6 +31,12 @@ export interface ICollectionAccess {
   entryRestrictions: any | null;
 }
 
+export interface ITypedCollection {
+  uuid: string;
+  id: number;
+  workspaceId: number;
+}
+
 export interface ICollection {
   id: number;
   uuid: string;
@@ -272,4 +278,13 @@ export class Collection {
   ) {
     Collection.typedCollections.set(cls.uuid, cls);
   }
+}
+
+export function isTypedCollection(obj: unknown): obj is ITypedCollection {
+  const check = obj as ITypedCollection;
+  return (
+    check.uuid !== undefined &&
+    check.id !== undefined &&
+    check.workspaceId !== undefined
+  );
 }
