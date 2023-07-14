@@ -115,16 +115,6 @@ export class Element implements IElement {
     return res;
   }
 
-  public getTypeScriptEnum(): string {
-    const vals = [];
-    for (const cat of this.elementData.predefinedCategories || []) {
-      vals.push(`    ${cat.name.toUpperCase().replace(" ", "_")} = ${cat.id},`);
-    }
-    return `enum ${this.name.toUpperCase().replace(" ", "_")} {
-${vals.join("\n")}
-};`;
-  }
-
   public label(regex: string): ICategory | null {
     const rx = new RegExp(regex);
     for (const category of this.elementData.predefinedCategories || []) {

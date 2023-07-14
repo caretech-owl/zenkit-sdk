@@ -33,12 +33,14 @@ export interface ICollectionAccess {
 
 export interface ICollection {
   id: number;
+  uuid: string;
   name: string;
   workspaceId: number;
   visibility: number;
 }
 
 export class Collection {
+  entry_ctor: new (entry: IEntry, elements: Array<Element>) => Entry = Entry;
   data: ICollection;
   private _elements: Array<Element> | undefined;
   private _entries: Array<Entry>;
@@ -180,7 +182,10 @@ export class Collection {
       [key.fieldName]: primaryValue,
     });
     if (res.status === 200 && res.data) {
-      const entry = new Entry(res.data as IEntry, await this.getElements());
+      const entry = new this.entry_ctor(
+        res.data as IEntry,
+        await this.getElements()
+      );
       this._entries.push(entry);
       return entry;
     }
@@ -199,7 +204,7 @@ export class Collection {
     return null;
   }
 
-  private getEntryById(id: number): Entry | null {
+  protected getEntryById(id: number): Entry | null {
     for (const entry of this._entries) {
       if (entry.id == id) {
         return entry;
@@ -208,7 +213,7 @@ export class Collection {
     return null;
   }
 
-  private getEntryByKey(regex: string): Entry | null {
+  protected getEntryByKey(regex: string): Entry | null {
     const rx = new RegExp(regex);
     for (const entry of this._entries) {
       if (entry.primaryKey !== "") {
@@ -220,7 +225,7 @@ export class Collection {
     return null;
   }
 
-  protected async getElements(): Promise<Array<Element>> {
+  public async getElements(): Promise<Array<Element>> {
     if (this._elements === undefined) {
       this._elements = await this.requestElements();
     }
@@ -252,7 +257,7 @@ export class Collection {
     if (res.status == 200 && res.data != null) {
       for (const element of res.data["listEntries"]) {
         this._entries.push(
-          new Entry(element as IEntry, await this.getElements())
+          new this.entry_ctor(element as IEntry, await this.getElements())
         );
       }
     }

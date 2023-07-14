@@ -6,15 +6,9 @@ import {
   ValueField,
   ValueFieldType,
 } from "./fields/base";
-import CategoriesField from "./fields/categories";
-import DateField from "./fields/date";
-import LinkField from "./fields/link";
-import PersonsField from "./fields/persons";
-import ReferencesField from "./fields/references";
-import TextField from "./fields/text";
-import { BASE_URL } from "./config";
-import NumberField from "./fields/number";
+import * as fields from "./fields/index";
 import IComment, { comment } from "./comment";
+import { BASE_URL } from "./config";
 import { IFile, addFile, uploadFile } from "./file";
 import { ReadStream } from "fs";
 import { IWebhook, TriggerType, createWebhook } from "./webhook";
@@ -42,13 +36,13 @@ export interface IEntry {
 const FieldMap: {
   [key: number]: new (entry: IEntry, element: Element) => FieldType;
 } = {
-  [FieldCategory.TEXT]: TextField,
-  [FieldCategory.NUMBER]: NumberField,
-  [FieldCategory.DATE]: DateField,
-  [FieldCategory.LINK]: LinkField,
-  [FieldCategory.PERSONS]: PersonsField,
-  [FieldCategory.REFERENCES]: ReferencesField,
-  [FieldCategory.CATEGORIES]: CategoriesField,
+  [FieldCategory.TEXT]: fields.TextField,
+  [FieldCategory.NUMBER]: fields.NumberField,
+  [FieldCategory.DATE]: fields.DateField,
+  [FieldCategory.LINK]: fields.LinkField,
+  [FieldCategory.PERSONS]: fields.PersonsField,
+  [FieldCategory.REFERENCES]: fields.ReferencesField,
+  [FieldCategory.CATEGORIES]: fields.CategoriesField,
 };
 
 export class Entry {
