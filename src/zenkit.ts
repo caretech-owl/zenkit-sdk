@@ -3,13 +3,13 @@ import { BASE_URL } from "./config";
 import { IUser, getCurrentUser } from "./user";
 import { IWebhook } from "./webhook";
 import { Workspace, getCurrentWorkspaces } from "./workspace";
-import { Collection, ICollection } from "./collection";
+import { Collection, ICollection, isTypedCollection } from "./collection";
 
 export default class Zenkit {
   private user: IUser;
-  private _workspaces: Array<Workspace>;
+  private _workspaces: Map<number, Workspace>;
 
-  private constructor(user: IUser, workspaces: Array<Workspace>) {
+  private constructor(user: IUser, workspaces: Map<number, Workspace>) {
     this.user = user;
     this._workspaces = workspaces;
   }
@@ -19,9 +19,11 @@ export default class Zenkit {
   }
 
   get workspaces(): Array<{ id: number; name: string }> {
-    return this._workspaces.map((ws) => {
-      return { id: ws.id, name: ws.name };
-    });
+    const res = [];
+    for (const ws of this._workspaces.values()) {
+      res.push({ id: ws.id, name: ws.name });
+    }
+    return res;
   }
 
   public async listWebhooks(): Promise<Array<IWebhook>> {
@@ -43,7 +45,7 @@ export default class Zenkit {
 
   public workspace(param: unknown): Workspace | null {
     if (typeof param === "number") {
-      return this.getWorkspaceByID(param);
+      return this._workspaces.get(param) || null;
     } else if (typeof param === "string") {
       return this.getWorkspaceByName(param);
     }
@@ -52,41 +54,39 @@ export default class Zenkit {
 
   public collection(id: number): Collection | null;
   public collection(name: string): Collection | null;
-  public collection<T extends Collection>(
-    cls: (new (col: ICollection) => T) & { id: number }
+  public collection<
+    T extends Collection & { id: number; uuid: string; workspaceId: number }
+  >(
+    cls: (new (col: ICollection) => T) & {
+      id: number;
+      uuid: string;
+      workspaceId: number;
+    }
   ): T | null;
 
   public collection<T extends Collection>(
     param: unknown
   ): T | Collection | null {
-    let collection = null;
-    let idx = 0;
     if (typeof param === "number") {
-      while (collection === null && idx < this._workspaces.length) {
-        collection = this._workspaces[idx].collection(param);
-        idx += 1;
+      for (const ws of this._workspaces.values()) {
+        const collection = ws.collection(param);
+        if (collection) {
+          return collection;
+        }
       }
     } else if (typeof param === "string") {
-      while (collection === null && idx < this._workspaces.length) {
-        collection = this._workspaces[idx].collection(param);
-        idx += 1;
+      for (const ws of this._workspaces.values()) {
+        const collection = ws.collection(param);
+        if (collection) {
+          return collection;
+        }
       }
-    } else if (param instanceof Collection) {
-      while (collection === null && idx < this._workspaces.length) {
-        collection = this._workspaces[idx].collection(param.id);
-        idx += 1;
-      }
+    } else if (isTypedCollection(param)) {
+      const collection = this._workspaces
+        .get(param.workspaceId)
+        ?.collection(param.id);
       if (collection) {
         return collection as T;
-      }
-    }
-    return collection;
-  }
-
-  private getWorkspaceByID(id: number): Workspace | null {
-    for (const workspace of this._workspaces) {
-      if (workspace.id == id) {
-        return workspace;
       }
     }
     return null;
@@ -94,7 +94,7 @@ export default class Zenkit {
 
   private getWorkspaceByName(regex: string): Workspace | null {
     const rx = new RegExp(regex);
-    for (const workspace of this._workspaces) {
+    for (const workspace of this._workspaces.values()) {
       if (rx.test(workspace.name)) {
         return workspace;
       }
