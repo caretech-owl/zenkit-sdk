@@ -11,6 +11,10 @@ export abstract class FieldBase<T> {
   edited: boolean;
   element: Element;
 
+  get name() {
+    return this.element.fieldName;
+  }
+
   constructor(entry: IEntry, element: Element) {
     this.entry = entry;
     this.edited = false;
