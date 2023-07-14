@@ -34,7 +34,7 @@ ${vals.join("\n")}
     if (elem.elementcategory in FieldClassNames) {
       elems.push(
         `  public get ${to_camelCase(elem.name)}() {
-    return this.field("${elem.name}") as field.${
+    return this.field("${elem.name}") as fields.${
           FieldClassNames[elem.elementcategory]
         };
   }`
@@ -42,8 +42,8 @@ ${vals.join("\n")}
     }
   }
   const entryType = `${to_TitleCase(collection.name)}Entry`;
-  return `import { Zenkit, Collection, Entry, IEntry, Element } from "${prefix}";
-import * as field from "${prefix}/fields";
+  return `import { Collection, Entry, IEntry, Element } from "${prefix}";
+import * as fields from "${prefix}/fields";
   
 ${elemEnums.join("\n\n")}
   
@@ -81,6 +81,6 @@ export class ${to_TitleCase(collection.name)}Collection extends Collection {
   }
 }
   
-Zenkit.registerTypedCollection(TestCollectionCollection);
+Collection.registerTypedCollection(TestCollectionCollection);
   `;
 }

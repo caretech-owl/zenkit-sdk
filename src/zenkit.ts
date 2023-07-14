@@ -3,7 +3,7 @@ import { BASE_URL } from "./config";
 import { IUser, getCurrentUser } from "./user";
 import { IWebhook } from "./webhook";
 import { Workspace, getCurrentWorkspaces } from "./workspace";
-import { Collection } from "./collection";
+import { Collection, ICollection } from "./collection";
 
 export default class Zenkit {
   private user: IUser;
@@ -52,8 +52,13 @@ export default class Zenkit {
 
   public collection(id: number): Collection | null;
   public collection(name: string): Collection | null;
+  public collection<T extends Collection>(
+    cls: (new (col: ICollection) => T) & { id: number }
+  ): T | null;
 
-  public collection(param: unknown): Collection | null {
+  public collection<T extends Collection>(
+    param: unknown
+  ): T | Collection | null {
     let collection = null;
     let idx = 0;
     if (typeof param === "number") {
@@ -65,6 +70,14 @@ export default class Zenkit {
       while (collection === null && idx < this._workspaces.length) {
         collection = this._workspaces[idx].collection(param);
         idx += 1;
+      }
+    } else if (param instanceof Collection) {
+      while (collection === null && idx < this._workspaces.length) {
+        collection = this._workspaces[idx].collection(param.id);
+        idx += 1;
+      }
+      if (collection) {
+        return collection as T;
       }
     }
     return collection;

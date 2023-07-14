@@ -44,6 +44,10 @@ export class Collection {
   data: ICollection;
   private _elements: Array<Element> | undefined;
   private _entries: Array<Entry>;
+  public static typedCollections: Map<
+    string,
+    new (col: ICollection) => Collection
+  > = new Map();
 
   constructor(jsonData: ICollection) {
     this.data = jsonData;
@@ -261,5 +265,11 @@ export class Collection {
         );
       }
     }
+  }
+
+  public static registerTypedCollection(
+    cls: { uuid: string } & (new (col: ICollection) => Collection)
+  ) {
+    Collection.typedCollections.set(cls.uuid, cls);
   }
 }

@@ -41,7 +41,8 @@ export class Workspace {
     this.data = jsonData;
     this._collections = [];
     for (const list of this.data.lists) {
-      this._collections.push(new Collection(list));
+      const cls = Collection.typedCollections.get(list.uuid) || Collection;
+      this._collections.push(new cls(list));
     }
   }
 
@@ -61,12 +62,22 @@ export class Workspace {
 
   public collection(id: number): Collection | null;
   public collection(name: string): Collection | null;
+  public collection<T extends Collection>(
+    cls: (new (col: ICollection) => T) & { id: number }
+  ): T | null;
 
-  public collection(param: unknown): Collection | null {
+  public collection<T extends Collection>(
+    param: unknown
+  ): T | Collection | null {
     if (typeof param === "number") {
       return this.getCollectionByID(param);
     } else if (typeof param === "string") {
       return this.getCollectionByName(param);
+    } else if (param instanceof Collection) {
+      const res = this.getCollectionByID(param.id);
+      if (res) {
+        return res as T;
+      }
     }
     return null;
   }
