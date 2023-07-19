@@ -6,7 +6,7 @@ import { ValueFieldType } from "./fields/base";
 import { IUser } from "./user";
 import IComment, { comment } from "./comment";
 import { IWebhook, TriggerType, createWebhook } from "./webhook";
-import { IFile, addFile, uploadFile } from "./file";
+import { IFile, addFile, deleteFile, uploadFile } from "./file";
 import { ReadStream } from "fs";
 import { IGroup } from "./group";
 
@@ -25,10 +25,10 @@ export interface ICollectionAccess {
   userId: number;
   groupId: number | null;
   roleId: ICollectionPermission;
-  provider: any | null;
-  providerData: any | null;
-  elementRestrictions: any | null;
-  entryRestrictions: any | null;
+  provider: unknown | null;
+  providerData: unknown | null;
+  elementRestrictions: unknown | null;
+  entryRestrictions: unknown | null;
 }
 
 export interface ITypedCollection {
@@ -165,6 +165,16 @@ export class Collection {
     );
   }
 
+  public async deleteFile(uuid: string): Promise<IFile>;
+  public async deleteFile(file: IFile): Promise<IFile>;
+  public async deleteFile(param: IFile | string): Promise<IFile> {
+    if (typeof param === "string") {
+      return await deleteFile(param);
+    } else {
+      return await deleteFile(param.uuid);
+    }
+  }
+
   public async createCommentWebhook(address: string): Promise<IWebhook | null> {
     return createWebhook(address, TriggerType.COMMENT, null, this.id, null);
   }
@@ -176,7 +186,7 @@ export class Collection {
 
   public async createEntry(
     primaryValue: ValueFieldType,
-    data = {}
+    data: { [key: string]: ValueFieldType } = {}
   ): Promise<Entry> {
     const key = this.primaryKey;
     if (!key) {
@@ -188,9 +198,8 @@ export class Collection {
       throw new Error(`Passed primary key value '${primaryValue}'
        is not valid for primary key '${key.name}' with type '${key.type}'`);
     }
-    const res = await axios.post(`${BASE_URL}/lists/${this.id}/entries`, {
-      [key.fieldName]: primaryValue,
-    });
+    data[key.fieldName] = primaryValue;
+    const res = await axios.post(`${BASE_URL}/lists/${this.id}/entries`, data);
     if (res.status === 200 && res.data) {
       const entry = new this.entry_ctor(
         res.data as IEntry,
@@ -205,13 +214,11 @@ export class Collection {
   public entry(id: number): Entry | null;
   public entry(key: string): Entry | null;
 
-  public entry(param: unknown): Entry | null {
+  public entry(param: number | string): Entry | null {
     if (typeof param === "number") {
       return this.getEntryById(param);
-    } else if (typeof param === "string") {
-      return this.getEntryByKey(param);
     }
-    return null;
+    return this.getEntryByKey(param);
   }
 
   protected getEntryById(id: number): Entry | null {
@@ -243,7 +250,7 @@ export class Collection {
   }
 
   private async requestElements(): Promise<Array<Element>> {
-    let elements = [];
+    const elements = [];
     const res = await axios.get(`${BASE_URL}/lists/${this.id}/elements`);
     if (res.status == 200 && res.data != null) {
       for (const element of res.data) {

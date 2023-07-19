@@ -3,6 +3,7 @@ import { ReadStream } from "fs";
 import FormData from "form-data";
 import axios from "axios";
 import { basename } from "path";
+import { BASE_URL } from "./config";
 
 export interface IFile {
   id: number;
@@ -42,4 +43,9 @@ export async function uploadFile(
     );
   }
   return null;
+}
+
+export async function deleteFile(uuid: string): Promise<IFile> {
+  const res = await axios.delete(`${BASE_URL}/files/${uuid}`);
+  return res.data as IFile;
 }

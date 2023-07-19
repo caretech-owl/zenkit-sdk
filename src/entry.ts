@@ -9,7 +9,7 @@ import {
 import * as fields from "./fields/index";
 import IComment, { comment } from "./comment";
 import { BASE_URL } from "./config";
-import { IFile, addFile, uploadFile } from "./file";
+import { IFile, addFile, deleteFile, uploadFile } from "./file";
 import { ReadStream } from "fs";
 import { IWebhook, TriggerType, createWebhook } from "./webhook";
 
@@ -83,6 +83,16 @@ export class Entry {
 
   get id(): number {
     return this.data.id;
+  }
+
+  public async deleteFile(uuid: string): Promise<IFile>;
+  public async deleteFile(file: IFile): Promise<IFile>;
+  public async deleteFile(param: IFile | string): Promise<IFile> {
+    if (typeof param === "string") {
+      return await deleteFile(param);
+    } else {
+      return await deleteFile(param.uuid);
+    }
   }
 
   public async createCommentWebhook(address: string): Promise<IWebhook | null> {

@@ -3,7 +3,7 @@ import { BASE_URL, EP_GET_WORKSPACES } from "./config";
 import { Collection, ICollection, isTypedCollection } from "./collection";
 import { IUser } from "./user";
 import { ReadStream } from "fs";
-import { IFile, addFile, uploadFile } from "./file";
+import { IFile, addFile, uploadFile, deleteFile } from "./file";
 import IComment, { comment } from "./comment";
 import { IWebhook, TriggerType, createWebhook } from "./webhook";
 import { IGroup } from "./group";
@@ -162,6 +162,16 @@ export class Workspace {
     fileName: string
   ): Promise<IFile> {
     return addFile(data, fileName, `${BASE_URL}/workspaces/${this.id}/files`);
+  }
+
+  public async deleteFile(uuid: string): Promise<IFile>;
+  public async deleteFile(file: IFile): Promise<IFile>;
+  public async deleteFile(param: IFile | string): Promise<IFile> {
+    if (typeof param === "string") {
+      return await deleteFile(param);
+    } else {
+      return await deleteFile(param.uuid);
+    }
   }
 
   public async comment(

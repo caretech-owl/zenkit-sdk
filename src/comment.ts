@@ -20,7 +20,11 @@ export async function comment(
   parent?: string,
   fileId?: number
 ): Promise<boolean> {
-  const payload: any = { message: message };
+  const payload: {
+    message: string;
+    parentUUID?: string;
+    enrichments?: [{ fileId: number; type: string }];
+  } = { message: message };
   if (parent) {
     payload["parentUUID"] = parent;
   }
