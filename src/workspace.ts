@@ -1,14 +1,14 @@
 import axios from "axios";
 import { BASE_URL, EP_GET_WORKSPACES } from "./config";
-import type { ICollection} from "./collection";
+import type { ICollection } from "./collection";
 import { Collection, isTypedCollection } from "./collection";
 import type { IUser } from "./user";
 import type { ReadStream } from "fs";
-import type { IFile} from "./file";
+import type { IFile } from "./file";
 import { addFile, uploadFile, deleteFile } from "./file";
-import type IComment from "./comment";
+import { type IComment, deleteComment } from "./comment";
 import { comment } from "./comment";
-import type { IWebhook} from "./webhook";
+import type { IWebhook } from "./webhook";
 import { TriggerType, createWebhook } from "./webhook";
 import type { IGroup } from "./group";
 
@@ -174,24 +174,28 @@ export class Workspace {
     return addFile(data, fileName, `${BASE_URL}/workspaces/${this.id}/files`);
   }
 
-  public async deleteFile(uuid: string): Promise<IFile>;
+  public async deleteFile(fileId: number): Promise<IFile>;
   public async deleteFile(file: IFile): Promise<IFile>;
-  public async deleteFile(param: IFile | string): Promise<IFile> {
-    if (typeof param === "string") {
+  public async deleteFile(param: IFile | number): Promise<IFile> {
+    if (typeof param === "number") {
       return await deleteFile(param);
     } else {
-      return await deleteFile(param.uuid);
+      return await deleteFile(param.id);
     }
+  }
+
+  public async deleteComment(comment: IComment): Promise<boolean> {
+    return deleteComment(comment, `${BASE_URL}/workspaces/${this.id}`);
   }
 
   public async comment(
     message: string,
     parent?: string,
     fileId?: number
-  ): Promise<boolean> {
+  ): Promise<IComment | null> {
     return comment(
       message,
-      `${BASE_URL}/users/me/workspaces/${this.id}/activities`,
+      `${BASE_URL}/users/me/workspaces/${this.id}`,
       parent,
       fileId
     );

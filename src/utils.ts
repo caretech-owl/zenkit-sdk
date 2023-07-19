@@ -44,6 +44,8 @@ function replaceUmlaute(str: string): string {
 
 export function assertReturnCode(res: { status: number }, code: number): void {
   if (res.status !== code) {
-    throw Error(`Return code '${res.status}' is not '${code}.'`);
+    const msg = `Return code '${res.status}' is not '${code}.'`;
+    console.error(msg);
+    throw Error(msg);
   }
 }
