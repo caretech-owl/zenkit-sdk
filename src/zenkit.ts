@@ -1,9 +1,12 @@
 import axios from "axios";
 import { BASE_URL } from "./config";
-import { IUser, getCurrentUser } from "./user";
-import { IWebhook } from "./webhook";
-import { Workspace, getCurrentWorkspaces } from "./workspace";
-import { Collection, ICollection, isTypedCollection } from "./collection";
+import type { IUser} from "./user";
+import { getCurrentUser } from "./user";
+import type { IWebhook } from "./webhook";
+import type { Workspace} from "./workspace";
+import { getCurrentWorkspaces } from "./workspace";
+import type { Collection, ICollection} from "./collection";
+import { isTypedCollection } from "./collection";
 
 export default class Zenkit {
   private user: IUser;

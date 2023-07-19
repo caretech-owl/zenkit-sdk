@@ -1,14 +1,19 @@
 import axios from "axios";
 import { BASE_URL } from "./config";
-import { IEntry, Entry } from "./entry";
-import { Element, IElement } from "./element";
-import { ValueFieldType } from "./fields/base";
-import { IUser } from "./user";
-import IComment, { comment } from "./comment";
-import { IWebhook, TriggerType, createWebhook } from "./webhook";
-import { IFile, addFile, deleteFile, uploadFile } from "./file";
-import { ReadStream } from "fs";
-import { IGroup } from "./group";
+import type { IEntry} from "./entry";
+import { Entry } from "./entry";
+import type { IElement } from "./element";
+import { Element } from "./element";
+import type { ValueFieldType } from "./fields/base";
+import type { IUser } from "./user";
+import type IComment from "./comment";
+import { comment } from "./comment";
+import type { IWebhook} from "./webhook";
+import { TriggerType, createWebhook } from "./webhook";
+import type { IFile} from "./file";
+import { addFile, deleteFile, uploadFile } from "./file";
+import type { ReadStream } from "fs";
+import type { IGroup } from "./group";
 import { assertReturnCode } from "./utils";
 
 export enum ICollectionPermission {
@@ -51,10 +56,10 @@ export class Collection {
   data: ICollection;
   private _elements: Array<Element> | undefined;
   private _entries: Array<Entry>;
-  public static typedCollections: Map<
+  public static typedCollections = new Map<
     string,
     new (col: ICollection) => Collection
-  > = new Map();
+  >();
 
   constructor(jsonData: ICollection) {
     this.data = jsonData;
@@ -191,7 +196,7 @@ export class Collection {
 
   public async createEntry(
     primaryValue: ValueFieldType,
-    data: { [key: string]: ValueFieldType } = {}
+    data: Record<string, ValueFieldType> = {}
   ): Promise<Entry> {
     const key = this.primaryKey;
     if (!key) {
@@ -265,7 +270,7 @@ export class Collection {
     return elements;
   }
 
-  public async populate(filter = {}, limit = 100, skip = 0) {
+  public async populate(filter = {}, limit = 100, skip = 0): Promise<void> {
     this._entries = [];
     const res: { status: number; data: { listEntries: Array<IEntry> } } =
       await axios.post(`${BASE_URL}/lists/${this.id}/entries/filter/list`, {
@@ -284,7 +289,7 @@ export class Collection {
 
   public static registerTypedCollection(
     cls: { uuid: string } & (new (col: ICollection) => Collection)
-  ) {
+  ): void {
     Collection.typedCollections.set(cls.uuid, cls);
   }
 }

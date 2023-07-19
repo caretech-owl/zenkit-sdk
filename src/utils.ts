@@ -20,7 +20,7 @@ export function to_camelCase(str: string): string {
   return res.charAt(0).toLowerCase() + res.slice(1);
 }
 
-const umlautMap: { [key: string]: string } = {
+const umlautMap: Record<string, string> = {
   "\u00dc": "UE",
   "\u00c4": "AE",
   "\u00d6": "OE",
@@ -30,7 +30,7 @@ const umlautMap: { [key: string]: string } = {
   "\u00df": "ss",
 };
 
-function replaceUmlaute(str: string) {
+function replaceUmlaute(str: string): string {
   return str
     .replace(/[\u00dc|\u00c4|\u00d6][a-z]/g, (a) => {
       const big = umlautMap[a.slice(0, 1)];
@@ -42,7 +42,7 @@ function replaceUmlaute(str: string) {
     );
 }
 
-export function assertReturnCode(res: { status: number }, code: number) {
+export function assertReturnCode(res: { status: number }, code: number): void {
   if (res.status !== code) {
     throw Error(`Return code '${res.status}' is not '${code}.'`);
   }

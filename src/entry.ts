@@ -1,17 +1,22 @@
 import axios from "axios";
-import { Element, FieldCategory } from "./element";
-import {
+import type { Element} from "./element";
+import { FieldCategory } from "./element";
+import type {
   FieldType,
   FieldValueType,
-  ValueField,
-  ValueFieldType,
+  ValueFieldType} from "./fields/base";
+import {
+  ValueField
 } from "./fields/base";
 import * as fields from "./fields/index";
-import IComment, { comment } from "./comment";
+import type IComment from "./comment";
+import { comment } from "./comment";
 import { BASE_URL } from "./config";
-import { IFile, addFile, deleteFile, uploadFile } from "./file";
-import { ReadStream } from "fs";
-import { IWebhook, TriggerType, createWebhook } from "./webhook";
+import type { IFile} from "./file";
+import { addFile, deleteFile, uploadFile } from "./file";
+import type { ReadStream } from "fs";
+import type { IWebhook} from "./webhook";
+import { TriggerType, createWebhook } from "./webhook";
 import { assertReturnCode } from "./utils";
 
 export interface IEntry {
@@ -34,9 +39,7 @@ export interface IEntry {
   //   [key: `${string}_categories`]: Array<number>;
 }
 
-const FieldMap: {
-  [key: number]: new (entry: IEntry, element: Element) => FieldType;
-} = {
+const FieldMap: Record<number, new (entry: IEntry, element: Element) => FieldType> = {
   [FieldCategory.TEXT]: fields.TextField,
   [FieldCategory.NUMBER]: fields.NumberField,
   [FieldCategory.DATE]: fields.DateField,
@@ -148,7 +151,7 @@ export class Entry {
   }
 
   public async commit() {
-    const editData: { [key: string]: FieldValueType } = {};
+    const editData: Record<string, FieldValueType> = {};
     for (const field of this.fields.values()) {
       if (field.edited) {
         editData[field.element.fieldName] = field.value;

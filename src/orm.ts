@@ -1,10 +1,8 @@
-import { Collection } from "./collection";
+import type { Collection } from "./collection";
 import { FieldCategory } from "./element";
 import { to_TitleCase, to_UPPER_CASE, to_camelCase } from "./utils";
 
-export const FieldClassNames: {
-  [key: number]: string;
-} = {
+export const FieldClassNames: Record<number, string> = {
   [FieldCategory.TEXT]: "TextField",
   [FieldCategory.NUMBER]: "NumberField",
   [FieldCategory.DATE]: "DateField",

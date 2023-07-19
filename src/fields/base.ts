@@ -1,5 +1,5 @@
-import { IEntry } from "../entry";
-import { Element } from "../element";
+import type { IEntry } from "../entry";
+import type { Element } from "../element";
 
 export type FieldValueType = ValueFieldType | ArrayFieldType;
 export type ValueFieldType = string | number | null | boolean | object;

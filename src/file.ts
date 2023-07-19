@@ -1,5 +1,5 @@
 import { open } from "node:fs/promises";
-import { ReadStream } from "fs";
+import type { ReadStream } from "fs";
 import FormData from "form-data";
 import axios from "axios";
 import { basename } from "path";

@@ -1,6 +1,6 @@
 import axios from "axios";
 import { BASE_URL, EP_GET_CURRENT_USER } from "./config";
-import { IWebhook } from "./webhook";
+import type { IWebhook } from "./webhook";
 import { assertReturnCode } from "./utils";
 export interface IUser {
   id: number;
@@ -31,7 +31,7 @@ export async function deleteWebhook(webhook: IWebhook): Promise<boolean> {
   return res.status == 200;
 }
 
-export async function silenceAll() {
+export async function silenceAll(): Promise<void> {
   await axios.put("https://chat.zenkit.com/api/v1/users/me/settings", {
     notificationSettings: {
       general: {

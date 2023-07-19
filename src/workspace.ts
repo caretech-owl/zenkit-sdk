@@ -1,12 +1,16 @@
 import axios from "axios";
 import { BASE_URL, EP_GET_WORKSPACES } from "./config";
-import { Collection, ICollection, isTypedCollection } from "./collection";
-import { IUser } from "./user";
-import { ReadStream } from "fs";
-import { IFile, addFile, uploadFile, deleteFile } from "./file";
-import IComment, { comment } from "./comment";
-import { IWebhook, TriggerType, createWebhook } from "./webhook";
-import { IGroup } from "./group";
+import type { ICollection} from "./collection";
+import { Collection, isTypedCollection } from "./collection";
+import type { IUser } from "./user";
+import type { ReadStream } from "fs";
+import type { IFile} from "./file";
+import { addFile, uploadFile, deleteFile } from "./file";
+import type IComment from "./comment";
+import { comment } from "./comment";
+import type { IWebhook} from "./webhook";
+import { TriggerType, createWebhook } from "./webhook";
+import type { IGroup } from "./group";
 
 export enum IWorkspacePermission {
   ADMIN = "workspaceAdmin",
@@ -195,7 +199,7 @@ export class Workspace {
 }
 
 export async function getCurrentWorkspaces(): Promise<Map<number, Workspace>> {
-  const workspaces: Map<number, Workspace> = new Map();
+  const workspaces = new Map<number, Workspace>();
   const res = await axios.get(EP_GET_WORKSPACES);
   if (res.status === 200 && res.data !== null) {
     for (const ws of res.data) {

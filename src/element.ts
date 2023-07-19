@@ -13,7 +13,7 @@ export enum FieldCategory {
   REFERENCES = 16,
 }
 
-const FIELD_TYPE: { [key: number]: string } = {
+const FIELD_TYPE: Record<number, string> = {
   [FieldCategory.TEXT]: "string",
   [FieldCategory.NUMBER]: "number",
   [FieldCategory.LINK]: "string",
@@ -28,7 +28,7 @@ const FIELD_TYPE: { [key: number]: string } = {
   [FieldCategory.REFERENCES]: "object",
 };
 
-const FIELD_SUFFIX: { [key: number]: string } = {
+const FIELD_SUFFIX: Record<number, string> = {
   [FieldCategory.TEXT]: "text",
   [FieldCategory.NUMBER]: "number",
   [FieldCategory.LINK]: "link",
@@ -67,35 +67,31 @@ export class Element implements IElement {
     this._element = element;
   }
 
-  get id() {
+  get id(): number {
     return this._element.id;
   }
 
-  get uuid() {
+  get uuid(): string {
     return this._element.uuid;
   }
 
-  get name() {
+  get name(): string {
     return this._element.name;
   }
 
-  get description() {
+  get description(): string | null {
     return this._element.description;
   }
 
-  get isPrimary() {
+  get isPrimary(): boolean {
     return this._element.isPrimary;
   }
 
-  get sortOrder() {
-    return this._element.sortOrder;
-  }
-
-  get elementcategory() {
+  get elementcategory(): FieldCategory {
     return this._element.elementcategory;
   }
 
-  get type() {
+  get type(): string {
     return FIELD_TYPE[this._element.elementcategory];
   }
 
@@ -103,16 +99,20 @@ export class Element implements IElement {
     return this._element.elementData;
   }
 
-  get fieldName() {
+  public get fieldName(): string {
     return `${this.uuid}_${FIELD_SUFFIX[this.elementcategory]}`;
   }
 
-  get labels(): ICategory[] {
+  public get labels(): ICategory[] {
     const res = [];
     for (const cat of this.elementData.predefinedCategories || []) {
       res.push(cat);
     }
     return res;
+  }
+
+  get sortOrder(): number {
+    return this._element.sortOrder;
   }
 
   public label(regex: string): ICategory | null {
