@@ -131,3 +131,6 @@ build
 .pnp.*
 .DS_Store
 examples/scratchpad.ts
+
+# ignore rest api test data
+tests/data/*.json
