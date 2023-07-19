@@ -48,16 +48,21 @@ export async function comment(
       },
     ];
   }
-  const res: { status: number; data: IComment } = await axios.post(
-    `${targetUrl}/activities`,
-    payload
-  );
   try {
+    const res: { status: number; data: IComment } = await axios.post(
+      `${targetUrl}/activities`,
+      payload
+    );
     assertReturnCode(res, 201);
-  } catch {
-    return null;
+    return res.data;
+  } catch (err: unknown) {
+    if (err instanceof AxiosError) {
+      console.error(
+        `${err.response?.status}: ${err.response?.statusText} -> ${err.response?.data.error.name}`
+      );
+    }
   }
-  return res.data;
+  return null;
 }
 
 export async function deleteComment(
