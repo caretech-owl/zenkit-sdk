@@ -28,46 +28,43 @@ export async function deleteWebhook(webhook: IWebhook): Promise<boolean> {
 }
 
 export async function silenceAll() {
-  const res = await axios.put(
-    "https://chat.zenkit.com/api/v1/users/me/settings",
-    {
-      notificationSettings: {
-        general: {
-          toast: false,
-          notification: false,
-          email: false,
-          pushNotification: false,
-          desktopNotification: false,
-        },
-        activities: {
-          toast: false,
-          notification: false,
-          email: false,
-          pushNotification: false,
-          desktopNotification: false,
-        },
-        comments: {
-          toast: false,
-          notification: false,
-          email: false,
-          pushNotification: false,
-          desktopNotification: false,
-        },
-        mentions: {
-          toast: false,
-          notification: false,
-          email: false,
-          pushNotification: false,
-          desktopNotification: false,
-        },
-        reminders: {
-          toast: false,
-          notification: false,
-          email: false,
-          pushNotification: false,
-          desktopNotification: false,
-        },
+  await axios.put("https://chat.zenkit.com/api/v1/users/me/settings", {
+    notificationSettings: {
+      general: {
+        toast: false,
+        notification: false,
+        email: false,
+        pushNotification: false,
+        desktopNotification: false,
       },
-    }
-  );
+      activities: {
+        toast: false,
+        notification: false,
+        email: false,
+        pushNotification: false,
+        desktopNotification: false,
+      },
+      comments: {
+        toast: false,
+        notification: false,
+        email: false,
+        pushNotification: false,
+        desktopNotification: false,
+      },
+      mentions: {
+        toast: false,
+        notification: false,
+        email: false,
+        pushNotification: false,
+        desktopNotification: false,
+      },
+      reminders: {
+        toast: false,
+        notification: false,
+        email: false,
+        pushNotification: false,
+        desktopNotification: false,
+      },
+    },
+  });
 }

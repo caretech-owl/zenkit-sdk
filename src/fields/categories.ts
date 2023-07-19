@@ -1,5 +1,5 @@
 import { IEntry } from "../entry";
-import { Element, ICategory } from "../element";
+import { Element } from "../element";
 import { ArrayField } from "./base";
 
 export default class CategoriesField extends ArrayField<number> {

@@ -63,8 +63,8 @@ interface IElement {
 export class Element implements IElement {
   _element: IElement;
 
-  constructor(element: any) {
-    this._element = element as IElement;
+  constructor(element: IElement) {
+    this._element = element;
   }
 
   get id() {

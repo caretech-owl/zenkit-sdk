@@ -5,8 +5,8 @@ export interface IGroup {
   description: string | null;
   isAllUsers: boolean;
   externalId: string | number | null;
-  originProvider: any | null;
-  originData: any | null;
+  originProvider: unknown | null;
+  originData: unknown | null;
   userIds: Array<number>;
   subgroupIds: Array<number>;
 }

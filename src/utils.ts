@@ -16,7 +16,7 @@ export function to_UPPER_CASE(str: string): string {
 }
 
 export function to_camelCase(str: string): string {
-  let res = to_TitleCase(str);
+  const res = to_TitleCase(str);
   return res.charAt(0).toLowerCase() + res.slice(1);
 }
 
