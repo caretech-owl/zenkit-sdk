@@ -5,7 +5,7 @@ import { Collection, isTypedCollection } from "./collection";
 import type { IUser } from "./user";
 import type { ReadStream } from "fs";
 import type { IFile } from "./file";
-import { addFile, uploadFile, deleteFile } from "./file";
+import { addFile, uploadFile } from "./file";
 import { type IComment, deleteComment } from "./comment";
 import { comment } from "./comment";
 import type { IWebhook } from "./webhook";
