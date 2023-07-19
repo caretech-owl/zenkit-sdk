@@ -41,3 +41,9 @@ function replaceUmlaute(str: string) {
       (a) => umlautMap[a]
     );
 }
+
+export function assertReturnCode(res: { status: number }, code: number) {
+  if (res.status !== code) {
+    throw Error(`Return code '${res.status}' is not '${code}.'`);
+  }
+}

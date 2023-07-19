@@ -118,11 +118,14 @@ export class Workspace {
   public async addUser(
     userUUID: string,
     role: IWorkspacePermission
-  ): Promise<string> {
-    const res = await axios.post(`${BASE_URL}/workspaces/${this.id}/accesses`, {
-      roleId: role,
-      userUUID: userUUID,
-    });
+  ): Promise<IUser> {
+    const res: { status: number; data: IUser } = await axios.post(
+      `${BASE_URL}/workspaces/${this.id}/accesses`,
+      {
+        roleId: role,
+        userUUID: userUUID,
+      }
+    );
     return res.data;
   }
 
@@ -130,27 +133,30 @@ export class Workspace {
     access: IWorkspaceAccess,
     role: IWorkspacePermission
   ): Promise<IWorkspaceAccess> {
-    const res = await axios.put(
-      `${BASE_URL}/workspaces/${this.id}/accesses/${access.uuid}`,
-      { roleId: role }
-    );
-    return res.data.access as IWorkspaceAccess;
+    const res: { status: number; data: { access: IWorkspaceAccess } } =
+      await axios.put(
+        `${BASE_URL}/workspaces/${this.id}/accesses/${access.uuid}`,
+        { roleId: role }
+      );
+    return res.data.access;
   }
 
   public async removeAccess(
     access: IWorkspaceAccess
   ): Promise<IWorkspaceAccess> {
-    const res = await axios.delete(
-      `${BASE_URL}/workspaces/${this.id}/accesses/${access.uuid}`
-    );
-    return res.data.access as IWorkspaceAccess;
+    const res: { status: number; data: { access: IWorkspaceAccess } } =
+      await axios.delete(
+        `${BASE_URL}/workspaces/${this.id}/accesses/${access.uuid}`
+      );
+    return res.data.access;
   }
 
   public async listComments(limit = 100): Promise<Array<IComment>> {
-    const res = await axios.get(
-      `${BASE_URL}/workspaces/${this.id}/activities?filter=2&limit=${limit}`
-    );
-    return (res.data.activities || []) as Array<IComment>;
+    const res: { status: number; data: { activities: Array<IComment> } } =
+      await axios.get(
+        `${BASE_URL}/workspaces/${this.id}/activities?filter=2&limit=${limit}`
+      );
+    return res.data.activities;
   }
 
   public async uploadFile(filePath: string): Promise<IFile | null> {

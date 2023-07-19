@@ -12,6 +12,7 @@ import { BASE_URL } from "./config";
 import { IFile, addFile, deleteFile, uploadFile } from "./file";
 import { ReadStream } from "fs";
 import { IWebhook, TriggerType, createWebhook } from "./webhook";
+import { assertReturnCode } from "./utils";
 
 export interface IEntry {
   id: number;
@@ -58,7 +59,7 @@ export class Entry {
     for (const element of elements) {
       const cls = FieldMap[element.elementcategory];
       if (cls !== undefined) {
-        const entry = new cls(this.data as IEntry, element);
+        const entry = new cls(this.data, element);
         this.fields.set(element.name, entry);
         if (element.isPrimary) {
           if (entry instanceof ValueField) {
@@ -119,10 +120,12 @@ export class Entry {
   }
 
   public async listComments(): Promise<Array<IComment>> {
-    const res = await axios.get(
-      `${BASE_URL}/lists/${this.data.listId}/entries/${this.id}/activities?filter=2`
-    );
-    return (res.data.activities || []) as Array<IComment>;
+    const res: { status: number; data: { activities: Array<IComment> } } =
+      await axios.get(
+        `${BASE_URL}/lists/${this.data.listId}/entries/${this.id}/activities?filter=2`
+      );
+    assertReturnCode(res, 200);
+    return res.data.activities;
   }
 
   get primaryKey(): string {

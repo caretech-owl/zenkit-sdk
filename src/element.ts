@@ -46,7 +46,7 @@ export interface ICategory {
   color: string; // TODO make ColorStringType
 }
 
-interface IElement {
+export interface IElement {
   id: number;
   uuid: string;
   name: string;
@@ -110,7 +110,7 @@ export class Element implements IElement {
   get labels(): ICategory[] {
     const res = [];
     for (const cat of this.elementData.predefinedCategories || []) {
-      res.push(cat as ICategory);
+      res.push(cat);
     }
     return res;
   }

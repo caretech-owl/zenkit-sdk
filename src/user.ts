@@ -1,6 +1,7 @@
 import axios from "axios";
 import { BASE_URL, EP_GET_CURRENT_USER } from "./config";
 import { IWebhook } from "./webhook";
+import { assertReturnCode } from "./utils";
 export interface IUser {
   id: number;
   shortId: string;
@@ -11,10 +12,13 @@ export interface IUser {
 }
 
 export async function getCurrentUser(): Promise<IUser | null> {
-  const res = await axios.get(EP_GET_CURRENT_USER);
-  if (res.status === 200 && res.data !== null) {
+  const res: { status: number; data: IUser } = await axios.get(
+    EP_GET_CURRENT_USER
+  );
+  try {
+    assertReturnCode(res, 200);
     return res.data;
-  } else {
+  } catch {
     console.error(
       "Did not receive a valid user response. Is your API key valid?"
     );

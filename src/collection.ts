@@ -1,7 +1,7 @@
 import axios from "axios";
 import { BASE_URL } from "./config";
 import { IEntry, Entry } from "./entry";
-import { Element } from "./element";
+import { Element, IElement } from "./element";
 import { ValueFieldType } from "./fields/base";
 import { IUser } from "./user";
 import IComment, { comment } from "./comment";
@@ -9,6 +9,7 @@ import { IWebhook, TriggerType, createWebhook } from "./webhook";
 import { IFile, addFile, deleteFile, uploadFile } from "./file";
 import { ReadStream } from "fs";
 import { IGroup } from "./group";
+import { assertReturnCode } from "./utils";
 
 export enum ICollectionPermission {
   ADMIN = "listAdmin",
@@ -25,10 +26,10 @@ export interface ICollectionAccess {
   userId: number;
   groupId: number | null;
   roleId: ICollectionPermission;
-  provider: unknown | null;
-  providerData: unknown | null;
-  elementRestrictions: unknown | null;
-  entryRestrictions: unknown | null;
+  provider: unknown;
+  providerData: unknown;
+  elementRestrictions: unknown;
+  entryRestrictions: unknown;
 }
 
 export interface ITypedCollection {
@@ -105,27 +106,30 @@ export class Collection {
       roleId: role,
       userUUID: userUUID,
     });
-    return res.data;
+    return res.data as string;
   }
 
   public async setAccess(
     access: ICollectionAccess,
     role: ICollectionPermission
   ): Promise<ICollectionAccess> {
-    const res = await axios.put(
-      `${BASE_URL}/lists/${this.id}/accesses/${access.uuid}`,
-      { roleId: role }
-    );
-    return res.data.access as ICollectionAccess;
+    const res: { status: number; data: { access: ICollectionAccess } } =
+      await axios.put(`${BASE_URL}/lists/${this.id}/accesses/${access.uuid}`, {
+        roleId: role,
+      });
+    assertReturnCode(res, 200);
+    return res.data.access;
   }
 
   public async removeAccess(
     access: ICollectionAccess
   ): Promise<ICollectionAccess> {
-    const res = await axios.delete(
-      `${BASE_URL}/lists/${this.id}/accesses/${access.uuid}`
-    );
-    return res.data.access as ICollectionAccess;
+    const res: { status: 200; data: { access: ICollectionAccess } } =
+      await axios.delete(
+        `${BASE_URL}/lists/${this.id}/accesses/${access.uuid}`
+      );
+    assertReturnCode(res, 200);
+    return res.data.access;
   }
 
   public listEntries(): Array<{ key: string; id: number }> {
@@ -135,10 +139,11 @@ export class Collection {
   }
 
   public async listComments(limit = 100): Promise<Array<IComment>> {
-    const res = await axios.get(
-      `${BASE_URL}/lists/${this.id}/activities?filter=2&limit=${limit}`
-    );
-    return (res.data.activities || []) as Array<IComment>;
+    const res: { status: number; data: { activities?: Array<IComment> } } =
+      await axios.get(
+        `${BASE_URL}/lists/${this.id}/activities?filter=2&limit=${limit}`
+      );
+    return res.data.activities || [];
   }
 
   public async uploadFile(filePath: string): Promise<IFile | null> {
@@ -195,7 +200,7 @@ export class Collection {
       );
     }
     if (typeof primaryValue !== key?.type) {
-      throw new Error(`Passed primary key value '${primaryValue}'
+      throw new Error(`Passed primary key value '${primaryValue?.toString()}'
        is not valid for primary key '${key.name}' with type '${key.type}'`);
     }
     data[key.fieldName] = primaryValue;
@@ -254,7 +259,7 @@ export class Collection {
     const res = await axios.get(`${BASE_URL}/lists/${this.id}/elements`);
     if (res.status == 200 && res.data != null) {
       for (const element of res.data) {
-        elements.push(new Element(element));
+        elements.push(new Element(element as IElement));
       }
     }
     return elements;
@@ -262,21 +267,18 @@ export class Collection {
 
   public async populate(filter = {}, limit = 100, skip = 0) {
     this._entries = [];
-    const res = await axios.post(
-      `${BASE_URL}/lists/${this.id}/entries/filter/list`,
-      {
+    const res: { status: number; data: { listEntries: Array<IEntry> } } =
+      await axios.post(`${BASE_URL}/lists/${this.id}/entries/filter/list`, {
         filter: filter,
         limit: limit,
         skip: skip,
         allowDeprecated: false,
-      }
-    );
-    if (res.status == 200 && res.data != null) {
-      for (const element of res.data["listEntries"]) {
-        this._entries.push(
-          new this.entry_ctor(element as IEntry, await this.getElements())
-        );
-      }
+      });
+    assertReturnCode(res, 200);
+    for (const element of res.data["listEntries"]) {
+      this._entries.push(
+        new this.entry_ctor(element, await this.getElements())
+      );
     }
   }
 
