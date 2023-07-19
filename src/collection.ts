@@ -1,16 +1,16 @@
 import axios from "axios";
 import { BASE_URL } from "./config";
-import type { IEntry} from "./entry";
+import type { IEntry } from "./entry";
 import { Entry } from "./entry";
 import type { IElement } from "./element";
 import { Element } from "./element";
 import type { ValueFieldType } from "./fields/base";
 import type { IUser } from "./user";
-import type IComment from "./comment";
-import { comment } from "./comment";
-import type { IWebhook} from "./webhook";
+import type { IComment } from "./comment";
+import { comment, deleteComment } from "./comment";
+import type { IWebhook } from "./webhook";
 import { TriggerType, createWebhook } from "./webhook";
-import type { IFile} from "./file";
+import type { IFile } from "./file";
 import { addFile, deleteFile, uploadFile } from "./file";
 import type { ReadStream } from "fs";
 import type { IGroup } from "./group";
@@ -166,22 +166,26 @@ export class Collection {
     message: string,
     parent?: string,
     fileId?: number
-  ): Promise<boolean> {
+  ): Promise<IComment | null> {
     return comment(
       message,
-      `${BASE_URL}/users/me/lists/${this.id}/activities`,
+      `${BASE_URL}/users/me/lists/${this.id}`,
       parent,
       fileId
     );
   }
 
-  public async deleteFile(uuid: string): Promise<IFile>;
+  public async deleteComment(comment: IComment): Promise<boolean> {
+    return deleteComment(comment, `${BASE_URL}/lists/${this.id}`);
+  }
+
+  public async deleteFile(fileId: number): Promise<IFile>;
   public async deleteFile(file: IFile): Promise<IFile>;
-  public async deleteFile(param: IFile | string): Promise<IFile> {
-    if (typeof param === "string") {
+  public async deleteFile(param: IFile | number): Promise<IFile> {
+    if (typeof param === "number") {
       return await deleteFile(param);
     } else {
-      return await deleteFile(param.uuid);
+      return await deleteFile(param.id);
     }
   }
 

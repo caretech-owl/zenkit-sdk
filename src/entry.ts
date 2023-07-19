@@ -1,21 +1,16 @@
 import axios from "axios";
-import type { Element} from "./element";
+import type { Element } from "./element";
 import { FieldCategory } from "./element";
-import type {
-  FieldType,
-  FieldValueType,
-  ValueFieldType} from "./fields/base";
-import {
-  ValueField
-} from "./fields/base";
+import type { FieldType, FieldValueType, ValueFieldType } from "./fields/base";
+import { ValueField } from "./fields/base";
 import * as fields from "./fields/index";
-import type IComment from "./comment";
-import { comment } from "./comment";
+import type { IComment } from "./comment";
+import { comment, deleteComment } from "./comment";
 import { BASE_URL } from "./config";
-import type { IFile} from "./file";
+import type { IFile } from "./file";
 import { addFile, deleteFile, uploadFile } from "./file";
 import type { ReadStream } from "fs";
-import type { IWebhook} from "./webhook";
+import type { IWebhook } from "./webhook";
 import { TriggerType, createWebhook } from "./webhook";
 import { assertReturnCode } from "./utils";
 
@@ -39,7 +34,10 @@ export interface IEntry {
   //   [key: `${string}_categories`]: Array<number>;
 }
 
-const FieldMap: Record<number, new (entry: IEntry, element: Element) => FieldType> = {
+const FieldMap: Record<
+  number,
+  new (entry: IEntry, element: Element) => FieldType
+> = {
   [FieldCategory.TEXT]: fields.TextField,
   [FieldCategory.NUMBER]: fields.NumberField,
   [FieldCategory.DATE]: fields.DateField,
@@ -89,13 +87,13 @@ export class Entry {
     return this.data.id;
   }
 
-  public async deleteFile(uuid: string): Promise<IFile>;
+  public async deleteFile(fileId: number): Promise<IFile>;
   public async deleteFile(file: IFile): Promise<IFile>;
-  public async deleteFile(param: IFile | string): Promise<IFile> {
-    if (typeof param === "string") {
+  public async deleteFile(param: IFile | number): Promise<IFile> {
+    if (typeof param === "number") {
       return await deleteFile(param);
     } else {
-      return await deleteFile(param.uuid);
+      return await deleteFile(param.id);
     }
   }
 
@@ -113,12 +111,19 @@ export class Entry {
     message: string,
     parent?: string,
     fileId?: number
-  ): Promise<boolean> {
+  ): Promise<IComment | null> {
     return comment(
       message,
-      `${BASE_URL}/users/me/lists/${this.data.listId}/entries/${this.id}/activities`,
+      `${BASE_URL}/users/me/lists/${this.data.listId}/entries/${this.id}`,
       parent,
       fileId
+    );
+  }
+
+  public async deleteComment(comment: IComment): Promise<boolean> {
+    return deleteComment(
+      comment,
+      `${BASE_URL}/users/me/lists/${this.data.listId}/entries/${this.id}`
     );
   }
 
