@@ -174,15 +174,17 @@ export class Workspace {
     return addFile(data, fileName, `${BASE_URL}/workspaces/${this.id}/files`);
   }
 
-  public async deleteFile(fileId: number): Promise<IFile>;
-  public async deleteFile(file: IFile): Promise<IFile>;
-  public async deleteFile(param: IFile | number): Promise<IFile> {
-    if (typeof param === "number") {
-      return await deleteFile(param);
-    } else {
-      return await deleteFile(param.id);
-    }
-  }
+  // // this does not seem to be the intentede use since workspaces are currently only associated
+  // // with files as chatrooms. Removing a comment will remove the enrichments as well.
+  // public async deleteFile(fileId: number): Promise<IFile>;
+  // public async deleteFile(file: IFile): Promise<IFile>;
+  // public async deleteFile(param: IFile | number): Promise<IFile> {
+  //   if (typeof param === "number") {
+  //     return await deleteFile(param);
+  //   } else {
+  //     return await deleteFile(param.id);
+  //   }
+  // }
 
   public async deleteComment(comment: IComment): Promise<boolean> {
     return deleteComment(comment, `${BASE_URL}/workspaces/${this.id}`);

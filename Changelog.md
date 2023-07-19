@@ -1,5 +1,9 @@
 # Changelog 
 
+## Release 0.1.5
+
+- add user management for workspaces and collections
+
 ## Release 0.1.4
 
 - add createWebhook to Workspace, Collection and Entry
