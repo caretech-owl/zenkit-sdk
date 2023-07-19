@@ -2,7 +2,15 @@
 
 ## Release 0.1.5
 
-- add user management for workspaces and collections
+- add file and comment deletion
+- workspaces and collections are stored in maps now for faster access
+- introduced eslint and fixed all basic linting issues
+- import all commonly used types and classes directly from the package thanks to re-exports
+- add user access management
+- reworked collection ORM
+  - decoupled from collection
+  - allow to pass ORM collection type to `collection()` to receive a collection with typed field entries
+- add helpers for string formatting
 
 ## Release 0.1.4
 
