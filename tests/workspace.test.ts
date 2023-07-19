@@ -18,7 +18,7 @@ describe("test get workspace info", () => {
     });
 
     let workspaces = await getCurrentWorkspaces();
-    expect(workspaces).toHaveLength(1);
-    expect(workspaces[0].id).toBe(1281787);
+    expect(workspaces.size).toBe(1);
+    expect(workspaces.get(1281787)?.id).toBe(1281787);
   });
 });
