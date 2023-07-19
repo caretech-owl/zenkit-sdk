@@ -43,7 +43,7 @@ export interface ICategory {
   id: number;
   uuid: string;
   name: string;
-  color: string; // TODO make ColorStringType
+  color?: string; // TODO make ColorStringType
 }
 
 export interface IElement {
