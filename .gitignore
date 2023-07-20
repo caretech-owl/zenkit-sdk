@@ -132,3 +132,5 @@ build
 .DS_Store
 examples/scratchpad.ts
 
+# code coverage
+.cov
