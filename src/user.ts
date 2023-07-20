@@ -2,6 +2,7 @@ import axios from "axios";
 import { BASE_URL, EP_GET_CURRENT_USER } from "./config";
 import type { IWebhook } from "./webhook";
 import { assertReturnCode } from "./utils";
+import { IChat } from "./chat";
 export interface IUser {
   id: number;
   shortId: string;
@@ -9,6 +10,7 @@ export interface IUser {
   fullname: string;
   initials: string;
   username: string;
+  settings: { chats?: Array<IChat> };
 }
 
 export async function getCurrentUser(): Promise<IUser | null> {
