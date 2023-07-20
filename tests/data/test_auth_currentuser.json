@@ -28,5 +28,37 @@
       "deprecated_at": "null",
       "isVerified": true
     }
-  ]
+  ],
+  "settings": {
+    "chats": [
+      {
+        "muted_at": "2023-07-11T12:56:03.762Z",
+        "pinned_at": null,
+        "hidden_at": null,
+        "marked_as_unread_at": null,
+        "task_feature_hidden_at": null,
+        "chatNotifications": "auto",
+        "topicNotifications": "none",
+        "includeTopicMessages": false,
+        "includeActivities": false,
+        "uuid": "123fsdf-3413-4e39-a962-6595f47991c8",
+        "workspaceId": 42,
+        "created_at": "2023-07-11T12:52:58.268Z"
+      },
+      {
+        "muted_at": null,
+        "pinned_at": null,
+        "hidden_at": null,
+        "marked_as_unread_at": null,
+        "task_feature_hidden_at": null,
+        "chatNotifications": "all",
+        "topicNotifications": "all",
+        "includeTopicMessages": true,
+        "includeActivities": false,
+        "uuid": "a935a761-313d-4040-86e8-4f33223341ba",
+        "listId": 421,
+        "created_at": "2023-07-11T12:52:58.168Z"
+      }
+    ]
+  }
 }
