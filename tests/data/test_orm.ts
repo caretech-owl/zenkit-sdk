@@ -58,13 +58,11 @@ export class MockCollectionCollection extends Collection {
 
   public entry(id: number): MockCollectionEntry | null;
   public entry(key: string): MockCollectionEntry | null;
-  public entry(param: unknown): MockCollectionEntry | null {
+  public entry(param: string | number): MockCollectionEntry | null {
     if (typeof param === "number") {
       return this.getEntryById(param) as MockCollectionEntry;
-    } else if (typeof param === "string") {
-      return this.getEntryByKey(param) as MockCollectionEntry;
     }
-    return null;
+    return this.getEntryByKey(param) as MockCollectionEntry;
   }
 
   public async createEntry(

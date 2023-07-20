@@ -61,13 +61,11 @@ export class ${classType} extends Collection {
 
   public entry(id: number): ${entryType} | null;
   public entry(key: string): ${entryType} | null;
-  public entry(param: unknown): ${entryType} | null {
+  public entry(param: string | number): ${entryType} | null {
     if (typeof param === "number") {
       return this.getEntryById(param) as ${entryType};
-    } else if (typeof param === "string") {
-      return this.getEntryByKey(param) as ${entryType};
     }
-    return null;
+    return this.getEntryByKey(param) as ${entryType};
   }
 
   public async createEntry(
