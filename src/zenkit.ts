@@ -4,14 +4,24 @@ import { type Workspace } from "./workspace";
 import { getCurrentWorkspaces } from "./workspace";
 import type { Collection, ICollection } from "./collection";
 import { isTypedCollection } from "./collection";
+import type { IChat } from "./chat";
 
 export default class Zenkit {
   private user: IUser;
   private _workspaces: Map<number, Workspace>;
+  private _chats: Map<number, Workspace | Collection>;
 
   private constructor(user: IUser, workspaces: Map<number, Workspace>) {
     this.user = user;
     this._workspaces = workspaces;
+    this._chats = new Map();
+    for (const ichat of user.settings.chats as Array<IChat>) {
+      if (ichat.listId) {
+        this._chats.set(ichat.listId, this.collection(ichat.listId)!);
+      } else if (ichat.workspaceId) {
+        this._chats.set(ichat.workspaceId, this.workspace(ichat.workspaceId)!);
+      }
+    }
   }
 
   public get my(): IUser {
@@ -26,6 +36,10 @@ export default class Zenkit {
     return res;
   }
 
+  public get chats(): Array<IChat> {
+    return this.user.settings.chats as Array<IChat>;
+  }
+
   public static async createAsync(): Promise<Zenkit> {
     const user = await getCurrentUser();
     if (!user) {
@@ -38,16 +52,26 @@ export default class Zenkit {
     return new Zenkit(user, workspaces);
   }
 
+  public chat(id: number): Workspace | Collection | null;
+  public chat(name: string): Workspace | Collection | null;
+
+  public chat(param: number | string): Workspace | Collection | null {
+    if (typeof param === "number") {
+      return this._chats.get(param) || null;
+    }
+    return (
+      [...this._chats.values()].find((chat) => chat.name === param) || null
+    );
+  }
+
   public workspace(id: number): Workspace | null;
   public workspace(name: string): Workspace | null;
 
-  public workspace(param: unknown): Workspace | null {
+  public workspace(param: number | string): Workspace | null {
     if (typeof param === "number") {
       return this._workspaces.get(param) || null;
-    } else if (typeof param === "string") {
-      return this.getWorkspaceByName(param);
     }
-    return null;
+    return this.getWorkspaceByName(param);
   }
 
   public collection(id: number): Collection | null;

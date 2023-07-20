@@ -19,7 +19,6 @@ export enum IWorkspacePermission {
   COMMENTER = "commentOnlyWorkspaceUser",
   WRITE_ONLY = "writeOnlyWorkspaceUser",
   READ_ONLY = "readOnlyWorkspaceUser",
-  // "roleId": "listAdmin"|"listUser"|"listContributor"|"commentOnlyListUser"|"writeOnlyListUser"|"readOnlyListUser" }
 }
 
 export interface IWorkspaceAccess {

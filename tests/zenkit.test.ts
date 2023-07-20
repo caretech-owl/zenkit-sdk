@@ -60,4 +60,28 @@ describe("Zenkit API operations", () => {
     const collection = zenkit.collection(MockCollectionCollection);
     expect(collection?.name).toBe("Mock Collection");
   });
+
+  it("should return chats and comment", async () => {
+    const zenkit = await Zenkit.createAsync();
+    expect(zenkit.chats).toHaveLength(2);
+    expect(zenkit.chat(42)).toBe(zenkit.workspace(42));
+    const chat = zenkit.chat(421);
+    if (!chat) {
+      fail("Chat is null!");
+    }
+    expect(chat).toBe(zenkit.collection(421));
+
+    mockedAxios.post.mockImplementation((url) => {
+      if (url.indexOf(`/lists/${chat.id}/activities`) === -1) {
+        return Promise.reject({ status: 403, data: {} });
+      }
+      return Promise.resolve({
+        status: 200,
+        data: {},
+      });
+    });
+
+    const res = await chat?.comment("hello world");
+    expect(res).not.toBeNull();
+  });
 });
