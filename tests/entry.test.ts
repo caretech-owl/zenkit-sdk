@@ -2,8 +2,8 @@ import { Element } from "../src/element";
 import { Entry, IEntry } from "../src/entry";
 import TextField from "../src/fields/text";
 import NumberField from "../src/fields/number";
-import * as elementDataJson from "./data/test_collection_elements.json";
-import * as entryDataJson from "./data/test_collection_entries.json";
+import * as elementDataJson from "./data/test_lists_elements.json";
+import * as entryDataJson from "./data/test_lists_entries.json";
 
 import axios from "axios";
 
@@ -15,12 +15,12 @@ const mockedAxios = axios as jest.Mocked<typeof axios>;
 describe("test entry", () => {
   beforeEach(() => {
     const elements: Array<Element> = [];
-    for (const elementJson of elementDataJson.data) {
+    for (const elementJson of elementDataJson.array) {
       if (elementJson) {
         elements.push(new Element(elementJson));
       }
     }
-    entry = new Entry(entryDataJson["listEntries"][0] as IEntry, elements);
+    entry = new Entry(entryDataJson["listEntries"][2] as IEntry, elements);
   });
 
   it("should create an entry", async () => {
@@ -34,7 +34,7 @@ describe("test entry", () => {
     expect(value).not.toBe(field.value);
     expect(field.value).toBe("New Text");
     expect(field.edited).toBeTruthy;
-    const primary = entry.field("Primary Text Field") as TextField;
+    const primary = entry.field("Text Field") as TextField;
     expect(primary.value).toBe(entry.primaryKey);
     primary.set("new Value");
     expect(entry.primaryKey).toBe("new Value");

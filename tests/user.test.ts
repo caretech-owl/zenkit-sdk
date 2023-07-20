@@ -1,6 +1,6 @@
 import { getCurrentUser } from "../src/user";
 import axios from "axios";
-import * as userJsonData from "./data/test_collection_user.json";
+import * as userJsonData from "./data/test_auth_currentuser.json";
 
 jest.mock("axios");
 const mockedAxios = axios as jest.Mocked<typeof axios>;
@@ -18,5 +18,7 @@ describe("test get user info", () => {
     const user = await getCurrentUser();
     expect(user).not.toBeNull();
     expect(user!.id).not.toBeUndefined();
+    expect(user!.username).toBe("max");
+    expect(user!.fullname).toBe("Max Mustermann");
   });
 });

@@ -1,8 +1,8 @@
 import axios from "axios";
 
-import * as workspacesJsonData from "./data/test_collection_workspaces.json";
-import * as entriesJsonData from "./data/test_collection_entries.json";
-import * as elementJsonData from "./data/test_collection_elements.json";
+import * as workspacesJsonData from "./data/test_users_me_workspaces.json";
+import * as entriesJsonData from "./data/test_lists_entries.json";
+import * as elementJsonData from "./data/test_lists_elements.json";
 import { Collection } from "../src/collection";
 
 jest.mock("axios");
@@ -11,7 +11,7 @@ let collection: Collection;
 
 describe("Zenkit API operations", () => {
   beforeEach(() => {
-    collection = new Collection(workspacesJsonData.data[0].lists[0]);
+    collection = new Collection(workspacesJsonData.array[0].lists[0]);
   });
 
   afterEach(() => {
@@ -21,7 +21,7 @@ describe("Zenkit API operations", () => {
   beforeEach(() => {
     mockedAxios.get.mockResolvedValue({
       status: 200,
-      data: elementJsonData.data,
+      data: elementJsonData.array,
     });
     mockedAxios.post.mockResolvedValue({
       status: 200,
@@ -30,24 +30,13 @@ describe("Zenkit API operations", () => {
   });
 
   it("should populate a collection", async () => {
-    expect(collection.id).toBe(3207438);
-    expect(collection.name).toBe("Test Collection");
+    expect(collection.id).toBe(421);
+    expect(collection.name).toBe("Mock Collection");
     expect(collection.entry(1)).toBeNull();
-    expect(collection.entry("Eine Neue Aufgabe")).toBeNull();
+    expect(collection.entry("First Task")).toBeNull();
     await collection.populate();
-    expect(collection.entry(1)?.primaryKey).toBe("Eine Neue Aufgabe");
-    expect(collection.entry("Eine Neue Aufgabe")?.id).toBe(1);
-    expect(collection.entry(0)).toBeNull();
-  });
-
-  it("should populate a collection", async () => {
-    expect(collection.id).toBe(3207438);
-    expect(collection.name).toBe("Test Collection");
-    expect(collection.entry(1)).toBeNull();
-    expect(collection.entry("Eine Neue Aufgabe")).toBeNull();
-    await collection.populate();
-    expect(collection.entry(1)?.primaryKey).toBe("Eine Neue Aufgabe");
-    expect(collection.entry("Eine Neue Aufgabe")?.id).toBe(1);
+    expect(collection.entry(1)?.primaryKey).toBe("First Task");
+    expect(collection.entry("First Task")?.id).toBe(1);
     expect(collection.entry(0)).toBeNull();
   });
 });

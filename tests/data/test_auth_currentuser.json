@@ -1,0 +1,32 @@
+{
+  "id": 1,
+  "shortId": "HkHh7dz5Zo",
+  "uuid": "d9edb23d-f345-4fc9-9970-4db7a2de453f",
+  "displayname": "Max Mustermann",
+  "fullname": "Max Mustermann",
+  "initials": "MM",
+  "username": "max",
+  "backgroundId": 1,
+  "api_key": "null",
+  "imageLink": "null",
+  "anonymous": false,
+  "locale": "de_DE",
+  "timezone": "Europe/Berlin",
+  "isSuperAdmin": true,
+  "trello_token": "null",
+  "settings": {},
+  "isImagePreferred": true,
+  "emails": [
+    {
+      "id": 5,
+      "shortId": "H1msdz9-i",
+      "uuid": "808bd9f7-v342-49ce-bf59-26159f4db546",
+      "email": "mail@example.com",
+      "isPrimary": true,
+      "created_at": "2016-08-29T10:47:17.772+00:00",
+      "updated_at": "2016-08-29T10:47:17.772+00:00",
+      "deprecated_at": "null",
+      "isVerified": true
+    }
+  ]
+}

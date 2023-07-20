@@ -2,8 +2,8 @@ import { EP_GET_CURRENT_USER, EP_GET_WORKSPACES } from "../src/config";
 import Zenkit from "../src/zenkit";
 import axios from "axios";
 
-import * as workspacesJsonData from "./data/test_collection_workspaces.json";
-import * as userJsonData from "./data/test_collection_user.json";
+import * as workspacesJsonData from "./data/test_users_me_workspaces.json";
+import * as userJsonData from "./data/test_auth_currentuser.json";
 
 jest.mock("axios");
 const mockedAxios = axios as jest.Mocked<typeof axios>;
@@ -24,7 +24,7 @@ describe("Zenkit API operations", () => {
         case EP_GET_WORKSPACES:
           return Promise.resolve({
             status: 200,
-            data: workspacesJsonData.data,
+            data: workspacesJsonData.array,
           });
         default:
           return Promise.reject(new Error(`Endpoint ${url} is invalid.`));
@@ -40,16 +40,16 @@ describe("Zenkit API operations", () => {
 
   it("should get the workspace 'Test Bot Workspace'", async () => {
     const zenkit = await Zenkit.createAsync();
-    const workspace = zenkit.workspace("Test Bot Workspace");
+    const workspace = zenkit.workspace("Mock Workspace");
     if (!workspace) {
       fail("Workspace not defined!");
     }
-    const collection = workspace.collection("Test Collection");
+    const collection = workspace.collection("Mock Collection");
     if (collection === null) {
       fail("Collection is null");
     }
     expect(workspace.collection("CollectionThatDoesNotExist")).toBeNull();
     expect(collection.entry(0)).toBeNull();
-    expect(collection.entry("Eine Neue Aufgabe")).toBeNull();
+    expect(collection.entry("First Task")).toBeNull();
   });
 });
