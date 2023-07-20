@@ -8,13 +8,13 @@ import type { ValueFieldType } from "./fields/base";
 import type { IUser } from "./user";
 import type { IComment } from "./comment";
 import { comment, deleteComment } from "./comment";
-import type { IWebhook } from "./webhook";
-import { TriggerType, createWebhook } from "./webhook";
+import { TriggerType, Webhook } from "./webhook";
 import type { IFile } from "./file";
 import { addFile, deleteFile, uploadFile } from "./file";
 import type { ReadStream } from "fs";
 import type { IGroup } from "./group";
 import { assertReturnCode } from "./utils";
+import generateORM from "./orm";
 
 export enum ICollectionPermission {
   ADMIN = "listAdmin",
@@ -135,6 +135,10 @@ export class Collection {
     return res.data.access;
   }
 
+  public async generateORM(prefix?: string): Promise<string> {
+    return generateORM(this, prefix);
+  }
+
   public async removeAccess(
     access: ICollectionAccess
   ): Promise<ICollectionAccess> {
@@ -198,13 +202,14 @@ export class Collection {
     }
   }
 
-  public async createCommentWebhook(address: string): Promise<IWebhook | null> {
-    return createWebhook(address, TriggerType.COMMENT, null, this.id, null);
-  }
-
-  public async listWebhooks(): Promise<Array<IWebhook>> {
-    const res = await axios.get(`${BASE_URL}/webhooks/list/${this.id}`);
-    return res.data as Array<IWebhook>;
+  public async createCommentWebhook(address: string): Promise<Webhook | null> {
+    return Webhook.createWebhook(
+      address,
+      TriggerType.COMMENT,
+      null,
+      this.id,
+      null
+    );
   }
 
   public async createEntry(

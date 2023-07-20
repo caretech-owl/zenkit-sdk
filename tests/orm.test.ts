@@ -6,7 +6,6 @@ import * as elementJsonData from "./data/test_lists_elements.json";
 import * as entriesJsonData from "./data/test_lists_entries.json";
 
 import { MockCollectionCollection } from "./data/test_orm";
-import generateORM from "../src/orm";
 import { IEntry } from "../src";
 
 jest.mock("axios");
@@ -29,8 +28,7 @@ describe("Zenkit API operations", () => {
   });
 
   it("should create a valid ORM", async () => {
-    await collection.getElements();
-    const res = await generateORM(collection);
+    const res = await collection.generateORM();
     const orm = fs.readFileSync("tests/data/test_orm.ts").toString();
     const lineRes = res.split("\n").splice(1);
     const ormRes = orm.split("\n").splice(1);
