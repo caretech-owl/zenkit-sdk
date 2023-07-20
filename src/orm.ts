@@ -40,23 +40,25 @@ ${vals.join("\n")}
     }
   }
   const entryType = `${to_TitleCase(collection.name)}Entry`;
+  const classType = `${to_TitleCase(collection.name)}Collection`;
+
   return `import { Collection, Entry, IEntry, Element } from "${prefix}";
 import * as fields from "${prefix}/fields";
-  
+
 ${elemEnums.join("\n\n")}
-  
+
 export class ${entryType} extends Entry {
 ${elems.join("\n\n")}
 }
-  
-export class ${to_TitleCase(collection.name)}Collection extends Collection {
+
+export class ${classType} extends Collection {
   static id: number = ${collection.id};
   static uuid: string = "${collection.data.uuid}";
   static workspaceId: number = ${collection.data.workspaceId};
-  
+
   entry_ctor: new (entry: IEntry, elements: Array<Element>) => Entry =
-    TestCollectionEntry;
-  
+    ${entryType};
+
   public entry(id: number): ${entryType} | null;
   public entry(key: string): ${entryType} | null;
   public entry(param: unknown): ${entryType} | null {
@@ -67,7 +69,7 @@ export class ${to_TitleCase(collection.name)}Collection extends Collection {
     }
     return null;
   }
-  
+
   public async createEntry(
     primaryValue: ${collection.primaryKey!.type},
     data = {}
@@ -78,7 +80,7 @@ export class ${to_TitleCase(collection.name)}Collection extends Collection {
     ) as Promise<${entryType}>;
   }
 }
-  
-Collection.registerTypedCollection(TestCollectionCollection);
-  `;
+
+Collection.registerTypedCollection(${classType});
+`;
 }

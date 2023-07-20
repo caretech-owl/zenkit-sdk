@@ -4,6 +4,7 @@ import axios from "axios";
 
 import * as workspacesJsonData from "./data/test_users_me_workspaces.json";
 import * as userJsonData from "./data/test_auth_currentuser.json";
+import { MockCollectionCollection } from "./data/test_orm";
 
 jest.mock("axios");
 const mockedAxios = axios as jest.Mocked<typeof axios>;
@@ -36,6 +37,7 @@ describe("Zenkit API operations", () => {
     const zenkit = await Zenkit.createAsync();
     expect(zenkit.my).not.toBeNull();
     expect(zenkit.workspace(".")).not.toBeNull();
+    expect(zenkit.workspaces).toHaveLength(1);
   });
 
   it("should get the workspace 'Test Bot Workspace'", async () => {
@@ -51,5 +53,11 @@ describe("Zenkit API operations", () => {
     expect(workspace.collection("CollectionThatDoesNotExist")).toBeNull();
     expect(collection.entry(0)).toBeNull();
     expect(collection.entry("First Task")).toBeNull();
+  });
+
+  it("should get a collection from ORM", async () => {
+    const zenkit = await Zenkit.createAsync();
+    const collection = zenkit.collection(MockCollectionCollection);
+    expect(collection?.name).toBe("Mock Collection");
   });
 });

@@ -1,11 +1,11 @@
 import axios from "axios";
 import { BASE_URL } from "./config";
-import type { IUser} from "./user";
+import type { IUser } from "./user";
 import { getCurrentUser } from "./user";
 import type { IWebhook } from "./webhook";
-import type { Workspace} from "./workspace";
+import type { Workspace } from "./workspace";
 import { getCurrentWorkspaces } from "./workspace";
-import type { Collection, ICollection} from "./collection";
+import type { Collection, ICollection } from "./collection";
 import { isTypedCollection } from "./collection";
 
 export default class Zenkit {
@@ -62,7 +62,7 @@ export default class Zenkit {
   ): T | null;
 
   public collection<T extends Collection>(
-    param: unknown
+    param: number | string | T
   ): T | Collection | null {
     if (typeof param === "number") {
       for (const ws of this._workspaces.values()) {
