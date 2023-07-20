@@ -2,7 +2,12 @@
 
 ## Release 0.1.6
 
-- introduce code coverage and github action testing
+- introduce codecov and github action unit testing
+- extend linting rules
+- fix errors in ORM generation
+- add Github badges
+- create new mocked data
+- add IChat interface
 
 ## Release 0.1.5
 
