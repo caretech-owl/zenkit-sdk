@@ -1,5 +1,9 @@
 # Changelog 
 
+## Release 0.1.6
+
+- introduce code coverage and github action testing
+
 ## Release 0.1.5
 
 - add file and comment deletion
