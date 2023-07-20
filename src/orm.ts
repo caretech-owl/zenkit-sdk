@@ -42,8 +42,7 @@ ${vals.join("\n")}
   const entryType = `${to_TitleCase(collection.name)}Entry`;
   const classType = `${to_TitleCase(collection.name)}Collection`;
 
-  return `import { Collection, Entry, IEntry, Element } from "${prefix}";
-import * as fields from "${prefix}/fields";
+  return `import { Collection, Entry, IEntry, Element, fields } from "${prefix}";
 
 ${elemEnums.join("\n\n")}
 

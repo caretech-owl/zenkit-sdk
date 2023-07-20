@@ -32,8 +32,8 @@ describe("Zenkit API operations", () => {
     await collection.getElements();
     const res = await generateORM(collection);
     const orm = fs.readFileSync("tests/data/test_orm.ts").toString();
-    const lineRes = res.split("\n").splice(3);
-    const ormRes = orm.split("\n").splice(3);
+    const lineRes = res.split("\n").splice(1);
+    const ormRes = orm.split("\n").splice(1);
     for (let i = 0; i < lineRes.length; ++i) {
       expect(lineRes[i]).toBe(ormRes[i]);
     }

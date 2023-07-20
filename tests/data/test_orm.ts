@@ -1,5 +1,4 @@
-import { Collection, Entry, IEntry, Element } from "../../src";
-import * as fields from "../../src/fields";
+import { Collection, Entry, IEntry, Element, fields } from "../../src";
 
 export enum MockCollection {
   ZU_BEARBEITEN = 13425638,
