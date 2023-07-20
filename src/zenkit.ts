@@ -26,16 +26,16 @@ export default class Zenkit {
     return res;
   }
 
-  public static async createAsync(): Promise<Zenkit | null> {
+  public static async createAsync(): Promise<Zenkit> {
     const user = await getCurrentUser();
     if (!user) {
       throw Error("User probably not logged in.");
     }
     const workspaces = await getCurrentWorkspaces();
-    if (workspaces) {
-      return new Zenkit(user, workspaces);
+    if (!workspaces) {
+      throw Error(`Cannot get workspaces for user '${user.username}'.`);
     }
-    return null;
+    return new Zenkit(user, workspaces);
   }
 
   public workspace(id: number): Workspace | null;
