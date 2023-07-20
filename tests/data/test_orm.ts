@@ -1,12 +1,12 @@
 import { Collection, Entry, IEntry, Element, fields } from "../../src";
 
-export enum MockCollection {
+export enum SingleLabelField {
   ZU_BEARBEITEN = 13425638,
   IN_BEARBEITUNG = 13425639,
   ERLEDIGT = 13425640,
 }
 
-export enum MockCollection {
+export enum MultipleLabelField {
   ONE = 13425644,
   TWO = 13425645,
   THREE = 13425646,

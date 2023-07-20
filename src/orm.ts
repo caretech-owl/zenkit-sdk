@@ -25,7 +25,7 @@ export default async function generateORM(
       for (const cat of elem.elementData.predefinedCategories || []) {
         vals.push(`  ${to_UPPER_CASE(cat.name)} = ${cat.id},`);
       }
-      elemEnums.push(`export enum ${to_TitleCase(collection.name)} {
+      elemEnums.push(`export enum ${to_TitleCase(elem.name)} {
 ${vals.join("\n")}
 }`);
     }
