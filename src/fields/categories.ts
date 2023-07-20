@@ -3,7 +3,7 @@ import type { Element } from "../element";
 import { ArrayField } from "./base";
 
 export default class CategoriesField extends ArrayField<number> {
-  constructor(entry: IEntry, element: Element) {
+  public constructor(entry: IEntry, element: Element) {
     super(entry, element);
   }
 
