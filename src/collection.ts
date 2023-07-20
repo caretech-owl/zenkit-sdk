@@ -52,29 +52,32 @@ export interface ICollection {
 }
 
 export class Collection {
-  entry_ctor: new (entry: IEntry, elements: Array<Element>) => Entry = Entry;
-  data: ICollection;
-  private _elements: Array<Element> | undefined;
-  private _entries: Array<Entry>;
   public static typedCollections = new Map<
     string,
     new (col: ICollection) => Collection
   >();
 
-  constructor(jsonData: ICollection) {
+  public entry_ctor: new (entry: IEntry, elements: Array<Element>) => Entry =
+    Entry;
+  public data: ICollection;
+
+  private _elements: Array<Element> | undefined;
+  private _entries: Array<Entry>;
+
+  public constructor(jsonData: ICollection) {
     this.data = jsonData;
     this._entries = [];
   }
 
-  get id(): number {
+  public get id(): number {
     return this.data.id;
   }
 
-  get name(): string {
+  public get name(): string {
     return this.data.name;
   }
 
-  get primaryKey(): Element | null {
+  public get primaryKey(): Element | null {
     for (const elem of this._elements || []) {
       if (elem.isPrimary) {
         return elem;
@@ -83,8 +86,25 @@ export class Collection {
     return null;
   }
 
-  get elements(): Array<Element> {
+  public get elements(): Array<Element> {
     return this._elements || [];
+  }
+
+  public static registerTypedCollection(
+    cls: { uuid: string } & (new (col: ICollection) => Collection)
+  ): void {
+    Collection.typedCollections.set(cls.uuid, cls);
+  }
+
+  public async addUser(
+    userUUID: string,
+    role: ICollectionPermission
+  ): Promise<string> {
+    const res = await axios.post(`${BASE_URL}/lists/${this.id}/accesses`, {
+      roleId: role,
+      userUUID: userUUID,
+    });
+    return res.data as string;
   }
 
   public async listAccessInfo(): Promise<{
@@ -101,17 +121,6 @@ export class Collection {
         groups: Array<IGroup>;
       }) || []
     );
-  }
-
-  public async addUser(
-    userUUID: string,
-    role: ICollectionPermission
-  ): Promise<string> {
-    const res = await axios.post(`${BASE_URL}/lists/${this.id}/accesses`, {
-      roleId: role,
-      userUUID: userUUID,
-    });
-    return res.data as string;
   }
 
   public async setAccess(
@@ -235,6 +244,30 @@ export class Collection {
     return this.getEntryByKey(param);
   }
 
+  public async getElements(): Promise<Array<Element>> {
+    if (this._elements === undefined) {
+      this._elements = await this.requestElements();
+    }
+    return this._elements;
+  }
+
+  public async populate(filter = {}, limit = 100, skip = 0): Promise<void> {
+    this._entries = [];
+    const res: { status: number; data: { listEntries: Array<IEntry> } } =
+      await axios.post(`${BASE_URL}/lists/${this.id}/entries/filter/list`, {
+        filter: filter,
+        limit: limit,
+        skip: skip,
+        allowDeprecated: false,
+      });
+    assertReturnCode(res, 200);
+    for (const element of res.data["listEntries"]) {
+      this._entries.push(
+        new this.entry_ctor(element, await this.getElements())
+      );
+    }
+  }
+
   protected getEntryById(id: number): Entry | null {
     for (const entry of this._entries) {
       if (entry.id == id) {
@@ -256,13 +289,6 @@ export class Collection {
     return null;
   }
 
-  public async getElements(): Promise<Array<Element>> {
-    if (this._elements === undefined) {
-      this._elements = await this.requestElements();
-    }
-    return this._elements;
-  }
-
   private async requestElements(): Promise<Array<Element>> {
     const elements = [];
     const res = await axios.get(`${BASE_URL}/lists/${this.id}/elements`);
@@ -272,29 +298,6 @@ export class Collection {
       }
     }
     return elements;
-  }
-
-  public async populate(filter = {}, limit = 100, skip = 0): Promise<void> {
-    this._entries = [];
-    const res: { status: number; data: { listEntries: Array<IEntry> } } =
-      await axios.post(`${BASE_URL}/lists/${this.id}/entries/filter/list`, {
-        filter: filter,
-        limit: limit,
-        skip: skip,
-        allowDeprecated: false,
-      });
-    assertReturnCode(res, 200);
-    for (const element of res.data["listEntries"]) {
-      this._entries.push(
-        new this.entry_ctor(element, await this.getElements())
-      );
-    }
-  }
-
-  public static registerTypedCollection(
-    cls: { uuid: string } & (new (col: ICollection) => Collection)
-  ): void {
-    Collection.typedCollections.set(cls.uuid, cls);
   }
 }
 
