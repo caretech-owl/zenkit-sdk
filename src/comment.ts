@@ -53,7 +53,7 @@ export async function comment(
       `${targetUrl}/activities`,
       payload
     );
-    assertReturnCode(res, 201);
+    assertReturnCode(res, [200, 201]);
     return res.data;
   } catch (err: unknown) {
     if (err instanceof AxiosError) {
@@ -72,8 +72,6 @@ export async function deleteComment(
 ): Promise<boolean> {
   try {
     const res = await axios.delete(`${targetUrl}/activities/${comment.uuid}`);
-    console.log(res.status);
-    console.log(res.data);
     return res.status === 200;
   } catch (err: unknown) {
     if (err instanceof AxiosError) {

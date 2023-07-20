@@ -3,7 +3,7 @@ import { BASE_URL } from "./config";
 import type { IUser } from "./user";
 import { getCurrentUser } from "./user";
 import type { IWebhook } from "./webhook";
-import type { Workspace } from "./workspace";
+import { Workspace } from "./workspace";
 import { getCurrentWorkspaces } from "./workspace";
 import type { Collection, ICollection } from "./collection";
 import { isTypedCollection } from "./collection";
@@ -34,13 +34,16 @@ export default class Zenkit {
     return res.data as Array<IWebhook>;
   }
 
-  public static async createAsync(): Promise<Zenkit> {
+  public static async createAsync(): Promise<Zenkit | null> {
     const user = await getCurrentUser();
     if (!user) {
       throw Error("User probably not logged in.");
     }
     const workspaces = await getCurrentWorkspaces();
-    return new Zenkit(user, workspaces);
+    if (workspaces) {
+      return new Zenkit(user, workspaces);
+    }
+    return null;
   }
 
   public workspace(id: number): Workspace | null;

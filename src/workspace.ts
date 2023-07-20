@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { BASE_URL, EP_GET_WORKSPACES } from "./config";
 import type { ICollection } from "./collection";
 import { Collection, isTypedCollection } from "./collection";
@@ -11,6 +11,7 @@ import { comment } from "./comment";
 import type { IWebhook } from "./webhook";
 import { TriggerType, createWebhook } from "./webhook";
 import type { IGroup } from "./group";
+import { assertReturnCode } from "./utils";
 
 export enum IWorkspacePermission {
   ADMIN = "workspaceAdmin",
@@ -204,16 +205,27 @@ export class Workspace {
   }
 }
 
-export async function getCurrentWorkspaces(): Promise<Map<number, Workspace>> {
+export async function getCurrentWorkspaces(): Promise<Map<
+  number,
+  Workspace
+> | null> {
   const workspaces = new Map<number, Workspace>();
-  const res = await axios.get(EP_GET_WORKSPACES);
-  if (res.status === 200 && res.data !== null) {
-    for (const ws of res.data) {
-      const workspace = new Workspace(ws as IWorkspace);
-      workspaces.set(workspace.id, workspace);
+  try {
+    const res = await axios.get(EP_GET_WORKSPACES);
+    assertReturnCode(res, 200);
+    if (res.status === 200 && res.data !== null) {
+      for (const ws of res.data) {
+        const workspace = new Workspace(ws as IWorkspace);
+        workspaces.set(workspace.id, workspace);
+      }
+    } else {
+      console.warn(`Could not process workspaces for current user!`);
     }
-  } else {
-    console.warn(`Could not process workspaces for current user!`);
+    return workspaces;
+  } catch (err) {
+    if (err instanceof AxiosError) {
+      console.error(`${err.response?.status}: ${err.response?.statusText}`);
+    }
   }
-  return workspaces;
+  return null;
 }

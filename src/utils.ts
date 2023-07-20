@@ -42,9 +42,20 @@ function replaceUmlaute(str: string): string {
     );
 }
 
-export function assertReturnCode(res: { status: number }, code: number): void {
-  if (res.status !== code) {
-    const msg = `Return code '${res.status}' is not '${code}.'`;
+export function assertReturnCode(res: { status: number }, code: number): void;
+export function assertReturnCode(
+  res: { status: number },
+  codes: Array<number>
+): void;
+export function assertReturnCode(
+  res: { status: number },
+  codes: number | Array<number>
+): void {
+  if (typeof codes === "number") {
+    return assertReturnCode(res, [codes]);
+  }
+  if (!codes.includes(res.status)) {
+    const msg = `Return code '${res.status}' is not '${codes.join(" or ")}'`;
     console.error(msg);
     throw Error(msg);
   }

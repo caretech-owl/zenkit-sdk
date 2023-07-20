@@ -35,14 +35,14 @@ describe("Zenkit API operations", () => {
 
   it("should create a valid object", async () => {
     const zenkit = await Zenkit.createAsync();
-    expect(zenkit.my).not.toBeNull();
-    expect(zenkit.workspace(".")).not.toBeNull();
-    expect(zenkit.workspaces).toHaveLength(1);
+    expect(zenkit!.my).not.toBeNull();
+    expect(zenkit!.workspace(".")).not.toBeNull();
+    expect(zenkit!.workspaces).toHaveLength(1);
   });
 
   it("should get the workspace 'Test Bot Workspace'", async () => {
     const zenkit = await Zenkit.createAsync();
-    const workspace = zenkit.workspace("Mock Workspace");
+    const workspace = zenkit?.workspace("Mock Workspace");
     if (!workspace) {
       fail("Workspace not defined!");
     }
@@ -57,7 +57,7 @@ describe("Zenkit API operations", () => {
 
   it("should get a collection from ORM", async () => {
     const zenkit = await Zenkit.createAsync();
-    const collection = zenkit.collection(MockCollectionCollection);
+    const collection = zenkit!.collection(MockCollectionCollection);
     expect(collection?.name).toBe("Mock Collection");
   });
 });

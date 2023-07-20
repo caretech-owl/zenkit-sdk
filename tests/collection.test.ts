@@ -37,6 +37,8 @@ describe("Zenkit API operations", () => {
     await collection.populate();
     expect(collection.entry(1)?.primaryKey).toBe("First Task");
     expect(collection.entry("First Task")?.id).toBe(1);
+    expect(collection.entry(1) === collection.entry("First Task")).toBeTruthy;
+    expect(collection.entry(2) === collection.entry("Second Task")).toBeTruthy;
     expect(collection.entry(0)).toBeNull();
   });
 });
