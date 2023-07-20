@@ -134,3 +134,6 @@ examples/scratchpad.ts
 
 # code coverage
 .cov
+
+# linting reports
+eslint_report.json

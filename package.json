@@ -7,7 +7,8 @@
   "scripts": {
     "build": "tsc",
     "test": "jest",
-    "scratch": "tsc && node dist/examples/scratchpad.js"
+    "scratch": "tsc && node dist/examples/scratchpad.js",
+    "lint": "eslint src"
   },
   "author": "Alexander Neumann",
   "license": "MIT",

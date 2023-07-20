@@ -1,5 +1,5 @@
 import axios, { AxiosError } from "axios";
-import { IFile } from "./file";
+import type { IFile } from "./file";
 import { assertReturnCode } from "./utils";
 
 export interface IEnrichment {
@@ -57,8 +57,9 @@ export async function comment(
     return res.data;
   } catch (err: unknown) {
     if (err instanceof AxiosError) {
+      const axiosData = err.response?.data as { error: { name: string } };
       console.error(
-        `${err.response?.status}: ${err.response?.statusText} -> ${err.response?.data.error.name}`
+        `${err.response?.status}: ${err.response?.statusText} -> ${axiosData.error.name}`
       );
     }
   }
