@@ -3,7 +3,7 @@ import { BASE_URL } from "./config";
 import type { IUser } from "./user";
 import { getCurrentUser } from "./user";
 import type { IWebhook } from "./webhook";
-import { Workspace } from "./workspace";
+import { type Workspace } from "./workspace";
 import { getCurrentWorkspaces } from "./workspace";
 import type { Collection, ICollection } from "./collection";
 import { isTypedCollection } from "./collection";
@@ -17,11 +17,11 @@ export default class Zenkit {
     this._workspaces = workspaces;
   }
 
-  get my(): IUser {
+  public get my(): IUser {
     return this.user;
   }
 
-  get workspaces(): Array<{ id: number; name: string }> {
+  public get workspaces(): Array<{ id: number; name: string }> {
     const res = [];
     for (const ws of this._workspaces.values()) {
       res.push({ id: ws.id, name: ws.name });
