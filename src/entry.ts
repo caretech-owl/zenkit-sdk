@@ -10,8 +10,7 @@ import { BASE_URL } from "./config";
 import type { IFile } from "./file";
 import { addFile, deleteFile, uploadFile } from "./file";
 import type { ReadStream } from "fs";
-import type { IWebhook } from "./webhook";
-import { TriggerType, createWebhook } from "./webhook";
+import { TriggerType, Webhook } from "./webhook";
 import { assertReturnCode } from "./utils";
 
 export interface IEntry {
@@ -53,7 +52,7 @@ export class Entry {
 
   private _key: ValueField<ValueFieldType> | null;
 
-  constructor(jsonData: IEntry, elements: Array<Element>) {
+  public constructor(jsonData: IEntry, elements: Array<Element>) {
     this.data = jsonData;
     this.fields = new Map();
     this._key = null;
@@ -75,7 +74,7 @@ export class Entry {
     }
   }
 
-  public field(name: string) {
+  public field(name: string): FieldType | undefined {
     return this.fields.get(name);
   }
 
@@ -83,7 +82,7 @@ export class Entry {
     return Array.from(this.fields.keys());
   }
 
-  get id(): number {
+  public get id(): number {
     return this.data.id;
   }
 
@@ -97,8 +96,8 @@ export class Entry {
     }
   }
 
-  public async createCommentWebhook(address: string): Promise<IWebhook | null> {
-    return createWebhook(
+  public async createCommentWebhook(address: string): Promise<Webhook | null> {
+    return Webhook.createWebhook(
       address,
       TriggerType.COMMENT,
       null,
@@ -136,7 +135,7 @@ export class Entry {
     return res.data.activities;
   }
 
-  get primaryKey(): string {
+  public get primaryKey(): string {
     return this._key?.value?.toString() || "";
   }
 
@@ -155,7 +154,7 @@ export class Entry {
     );
   }
 
-  public async commit() {
+  public async commit(): Promise<void> {
     const editData: Record<string, FieldValueType> = {};
     for (const field of this.fields.values()) {
       if (field.edited) {

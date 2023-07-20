@@ -15,22 +15,40 @@ export interface IWebhook {
   listEntryId?: number;
 }
 
-export async function createWebhook(
-  address: string,
-  triggerType: TriggerType,
-  workspaceId: number | null = null,
-  listId: number | null = null,
-  listEntryId: number | null = null
-): Promise<IWebhook | null> {
-  const res = await axios.post(`${BASE_URL}/webhooks`, {
-    triggerType: triggerType,
-    url: address,
-    workspaceId: workspaceId,
-    listId: listId,
-    listEntryId: listEntryId,
-  });
-  if (res.status === 200) {
-    return res.data as IWebhook;
+export class Webhook {
+  private _data: IWebhook;
+
+  public static async createWebhook(
+    address: string,
+    triggerType: TriggerType,
+    workspaceId: number | null = null,
+    listId: number | null = null,
+    listEntryId: number | null = null
+  ): Promise<Webhook | null> {
+    const res = await axios.post(`${BASE_URL}/webhooks`, {
+      triggerType: triggerType,
+      url: address,
+      workspaceId: workspaceId,
+      listId: listId,
+      listEntryId: listEntryId,
+    });
+    if (res.status === 200) {
+      return new Webhook(res.data as IWebhook);
+    }
+    return null;
   }
-  return null;
+
+  public static async listWebhooks(): Promise<Array<Webhook>> {
+    const res = await axios.get(`${BASE_URL}/users/me/webhooks`);
+    return (res.data as Array<IWebhook>).map((hook) => new Webhook(hook));
+  }
+
+  private constructor(data: IWebhook) {
+    this._data = data;
+  }
+
+  public async delete(): Promise<boolean> {
+    const res = await axios.delete(`${BASE_URL}/webhooks/${this._data.id}`);
+    return res.status == 200;
+  }
 }

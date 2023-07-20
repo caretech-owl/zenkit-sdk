@@ -8,8 +8,7 @@ import type { IFile } from "./file";
 import { addFile, uploadFile } from "./file";
 import { type IComment, deleteComment } from "./comment";
 import { comment } from "./comment";
-import type { IWebhook } from "./webhook";
-import { TriggerType, createWebhook } from "./webhook";
+import { TriggerType, Webhook } from "./webhook";
 import type { IGroup } from "./group";
 import { assertReturnCode } from "./utils";
 
@@ -39,10 +38,10 @@ export interface IWorkspace {
 }
 
 export class Workspace {
-  data: IWorkspace;
+  public data: IWorkspace;
   private _collections: Map<number, Collection>;
 
-  constructor(jsonData: IWorkspace) {
+  public constructor(jsonData: IWorkspace) {
     this.data = jsonData;
     this._collections = new Map();
     for (const list of this.data.lists) {
@@ -52,15 +51,15 @@ export class Workspace {
     }
   }
 
-  get id(): number {
+  public get id(): number {
     return this.data.id;
   }
 
-  get name(): string {
+  public get name(): string {
     return this.data.name;
   }
 
-  get workspaces(): Array<{ id: number; name: string }> {
+  public get workspaces(): Array<{ id: number; name: string }> {
     const res = [];
     for (const ws of this._collections.values()) {
       res.push({ id: ws.id, name: ws.name });
@@ -100,8 +99,14 @@ export class Workspace {
     return null;
   }
 
-  public async createCommentWebhook(address: string): Promise<IWebhook | null> {
-    return createWebhook(address, TriggerType.COMMENT, this.id, null, null);
+  public async createCommentWebhook(address: string): Promise<Webhook | null> {
+    return Webhook.createWebhook(
+      address,
+      TriggerType.COMMENT,
+      this.id,
+      null,
+      null
+    );
   }
 
   public async listAccessInfo(): Promise<{

@@ -1,6 +1,5 @@
 import axios from "axios";
-import { BASE_URL, EP_GET_CURRENT_USER } from "./config";
-import type { IWebhook } from "./webhook";
+import { EP_GET_CURRENT_USER } from "./config";
 import { assertReturnCode } from "./utils";
 import type { IChat } from "./chat";
 export interface IUser {
@@ -26,11 +25,6 @@ export async function getCurrentUser(): Promise<IUser | null> {
     );
   }
   return null;
-}
-
-export async function deleteWebhook(webhook: IWebhook): Promise<boolean> {
-  const res = await axios.delete(`${BASE_URL}/webhooks/${webhook.id}`);
-  return res.status == 200;
 }
 
 export async function silenceAll(): Promise<void> {
