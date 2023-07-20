@@ -25,5 +25,7 @@ jobs:
       - run: npm test -- --coverage --coverageDirectory .cov
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         with:
           files: .cov/clover.xml
