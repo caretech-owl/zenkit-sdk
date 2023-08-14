@@ -123,6 +123,15 @@ export class Collection implements IChatGroup {
       : false;
   }
 
+  public async listUsers(): Promise<Array<IUser>> {
+    const res = await axios.get(`${BASE_URL}/lists/${this.id}/accesses`);
+    const data =
+      (res.data as {
+        users: Array<IUser>;
+      }) || {};
+    return data.users || [];
+  }
+
   public async getUserRole(userId: number): Promise<UserRole>;
   public async getUserRole(user: IUser): Promise<UserRole>;
   public async getUserRole(userOrId: IUser | number): Promise<UserRole> {
@@ -227,8 +236,7 @@ export class Collection implements IChatGroup {
 
     for (const usr of data.users) {
       userMapping[usr.id] = {
-        id: usr.id,
-        uuid: usr.uuid,
+        userInfo: usr,
         userAccessIds: [],
         groupAccessIds: [],
       };

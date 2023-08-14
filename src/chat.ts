@@ -20,8 +20,7 @@ export enum UserRole {
 }
 
 export interface IUserAccess {
-  uuid: string;
-  id: number;
+  userInfo: IUser;
   userAccessIds: Array<{ uuid: string; role: UserRole }>;
   groupAccessIds: Array<{ uuid: string; role: UserRole }>;
 }
@@ -43,4 +42,5 @@ export interface IChatGroup {
     ((user: IUser) => Promise<UserRole>);
   removeUser: ((userId: number) => Promise<boolean>) &
     ((user: IUser) => Promise<boolean>);
+  listUsers: () => Promise<Array<IUser>>;
 }
