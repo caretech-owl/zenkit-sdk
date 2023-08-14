@@ -42,5 +42,5 @@ export interface IChatGroup {
     ((user: IUser) => Promise<UserRole>);
   removeUser: ((userId: number) => Promise<boolean>) &
     ((user: IUser) => Promise<boolean>);
-  listUsers: () => Promise<Array<IUser>>;
+  listUsers: (roles?: Array<UserRole>) => Promise<Array<IUser>>;
 }
