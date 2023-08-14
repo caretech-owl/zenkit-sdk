@@ -78,6 +78,7 @@ export interface ICollection {
   name: string;
   workspaceId: number;
   visibility: number;
+  resourceTags: Array<{ tag: string; appType: string; isOwner: boolean }>;
 }
 
 export class Collection implements IChatGroup {

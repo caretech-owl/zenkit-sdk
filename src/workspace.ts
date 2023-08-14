@@ -63,6 +63,7 @@ export interface IWorkspace {
   id: number;
   shortId: string;
   lists: Array<ICollection>;
+  resourceTags: Array<{ tag: string; appType: string; isOwner: boolean }>;
 }
 
 export class Workspace implements IChatGroup {
@@ -147,6 +148,10 @@ export class Workspace implements IChatGroup {
       res.push({ id: ws.id, name: ws.name });
     }
     return res;
+  }
+
+  public get collections(): IterableIterator<Collection> {
+    return this._collections.values();
   }
 
   public collection(id: number): Collection | null;

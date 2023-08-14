@@ -18,11 +18,19 @@ export default class Zenkit {
     this.user = user;
     this._workspaces = workspaces;
     this._chats = new Map();
-    for (const ichat of user.settings.chats as Array<IChat>) {
-      if (ichat.listId) {
-        this._chats.set(ichat.listId, this.collection(ichat.listId)!);
-      } else if (ichat.workspaceId) {
-        this._chats.set(ichat.workspaceId, this.workspace(ichat.workspaceId)!);
+    for (const workspace of this._workspaces.values()) {
+      for (const resTag of workspace.data.resourceTags) {
+        if (["chat", "groupChat"].indexOf(resTag.tag) > -1) {
+          this._chats.set(workspace.id, workspace);
+          break;
+        }
+        for (const collection of workspace.collections) {
+          for (const resTag of collection.data.resourceTags) {
+            if (["chat", "groupChat"].indexOf(resTag.tag) > -1) {
+              this._chats.set(collection.id, collection);
+            }
+          }
+        }
       }
     }
   }
@@ -39,8 +47,8 @@ export default class Zenkit {
     return res;
   }
 
-  public get chats(): Array<IChat> {
-    return this.user.settings.chats as Array<IChat>;
+  public get chats(): IterableIterator<IChatGroup> {
+    return this._chats.values();
   }
 
   public async getUser(query: string): Promise<Array<IUser>> {

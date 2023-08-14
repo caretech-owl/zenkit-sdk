@@ -28,6 +28,7 @@ export interface IUserAccess {
 
 export interface IChatGroup {
   id: number;
+  name: string;
   createCommentWebhook: (address: string) => Promise<Webhook | null>;
   listComments: (limit: number) => Promise<Array<IComment>>;
   deleteComment: (comment: IComment) => Promise<boolean>;
