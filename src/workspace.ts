@@ -87,7 +87,7 @@ export class Workspace implements IChatGroup {
     role: UserRole
   ): Promise<boolean> {
     const userId = typeof userOrId === "number" ? userOrId : userOrId.id;
-    const userAccesses = (await this.listAccessInfo())[userId] || null;
+    const userAccesses = (await this.listAccessInfo()).get(userId) || null;
     if (userAccesses && userAccesses.userAccessIds.length > 0) {
       return (
         (await this.setAccess(
@@ -104,20 +104,33 @@ export class Workspace implements IChatGroup {
       : false;
   }
 
-  public async listUsers(): Promise<Array<IUser>> {
-    const res = await axios.get(`${BASE_URL}/workspaces/${this.id}/accesses`);
-    const data =
-      (res.data as {
-        users: Array<IUser>;
-      }) || {};
-    return data.users || [];
+  public async listUsers(roles: Array<UserRole> = []): Promise<Array<IUser>> {
+    if (roles.length === 0) {
+      const res = await axios.get(`${BASE_URL}/workspaces/${this.id}/accesses`);
+      const data =
+        (res.data as {
+          users: Array<IUser>;
+        }) || {};
+      return data.users || [];
+    }
+    const users = [];
+    const access = await this.listAccessInfo();
+    for (const userAccesses of access.values()) {
+      for (const access of userAccesses.userAccessIds) {
+        if (roles.indexOf(access.role) > -1) {
+          users.push(userAccesses.userInfo);
+          break;
+        }
+      }
+    }
+    return users;
   }
 
   public async getUserRole(userId: number): Promise<UserRole>;
   public async getUserRole(user: IUser): Promise<UserRole>;
   public async getUserRole(userOrId: IUser | number): Promise<UserRole> {
     const userId = typeof userOrId === "number" ? userOrId : userOrId.id;
-    const userAccesses = (await this.listAccessInfo())[userId] || null;
+    const userAccesses = (await this.listAccessInfo()).get(userId) || null;
     let res = UserRole.UNKNOWN;
     if (userAccesses) {
       for (const access of userAccesses.groupAccessIds) {
@@ -134,7 +147,7 @@ export class Workspace implements IChatGroup {
   public async removeUser(user: IUser): Promise<boolean>;
   public async removeUser(userOrId: IUser | number): Promise<boolean> {
     const userId = typeof userOrId === "number" ? userOrId : userOrId.id;
-    const userAccesses = (await this.listAccessInfo())[userId] || null;
+    const userAccesses = (await this.listAccessInfo()).get(userId) || null;
     if (userAccesses) {
       for (const access of userAccesses.userAccessIds) {
         await this.removeAccess(access.uuid);
@@ -205,7 +218,7 @@ export class Workspace implements IChatGroup {
     );
   }
 
-  public async listAccessInfo(): Promise<Record<number, IUserAccess>> {
+  public async listAccessInfo(): Promise<Map<number, IUserAccess>> {
     const res = await axios.get(`${BASE_URL}/workspaces/${this.id}/accesses`);
     // console.log(res.data);
     const data =
@@ -215,15 +228,15 @@ export class Workspace implements IChatGroup {
         groups: Array<IGroup>;
       }) || [];
 
-    const userMapping: Record<number, IUserAccess> = {};
+    const userMapping = new Map<number, IUserAccess>();
     const groupMapping: Record<number, { userIds: Array<number> }> = {};
 
     for (const usr of data.users) {
-      userMapping[usr.id] = {
+      userMapping.set(usr.id, {
         userInfo: usr,
         userAccessIds: [],
         groupAccessIds: [],
-      };
+      });
     }
     for (const grp of data.groups) {
       groupMapping[grp.id] = { userIds: grp.userIds };
@@ -231,13 +244,13 @@ export class Workspace implements IChatGroup {
 
     for (const access of data.accesses) {
       if (access.userId) {
-        userMapping[access.userId].userAccessIds.push({
+        userMapping.get(access.userId)!.userAccessIds.push({
           uuid: access.uuid,
           role: IWorkspacePermission.getInstance().getRole(access.roleId),
         });
       } else if (access.groupId) {
         for (const usr of groupMapping[access.groupId].userIds) {
-          userMapping[usr].groupAccessIds.push({
+          userMapping.get(usr)!.groupAccessIds.push({
             uuid: access.uuid,
             role: IWorkspacePermission.getInstance().getRole(access.roleId),
           });
