@@ -61,41 +61,44 @@ export interface IElement {
 }
 
 export class Element implements IElement {
-  _element: IElement;
+  private _element: IElement;
 
-  constructor(element: IElement) {
+  public constructor(element: IElement) {
     this._element = element;
   }
 
-  get id(): number {
+  public get id(): number {
     return this._element.id;
   }
 
-  get uuid(): string {
+  public get uuid(): string {
     return this._element.uuid;
   }
 
-  get name(): string {
+  public get name(): string {
     return this._element.name;
   }
 
-  get description(): string | null {
+  public get description(): string | null {
     return this._element.description;
   }
 
-  get isPrimary(): boolean {
+  public get isPrimary(): boolean {
     return this._element.isPrimary;
   }
 
-  get elementcategory(): FieldCategory {
+  public get elementcategory(): FieldCategory {
     return this._element.elementcategory;
   }
 
-  get type(): string {
+  public get type(): string {
     return FIELD_TYPE[this._element.elementcategory];
   }
 
-  get elementData() {
+  public get elementData(): {
+    multiple?: boolean;
+    predefinedCategories?: Array<ICategory>;
+  } {
     return this._element.elementData;
   }
 
@@ -111,7 +114,7 @@ export class Element implements IElement {
     return res;
   }
 
-  get sortOrder(): number {
+  public get sortOrder(): number {
     return this._element.sortOrder;
   }
 

@@ -11,22 +11,51 @@ import { comment } from "./comment";
 import { TriggerType, Webhook } from "./webhook";
 import type { IGroup } from "./group";
 import { assertReturnCode } from "./utils";
+import type { IChatGroup, IUserAccess } from "./chat";
+import { UserRole } from "./chat";
 
-export enum IWorkspacePermission {
-  ADMIN = "workspaceAdmin",
-  USER = "workspaceUser",
-  CONTRIBUTOR = "workspaceContributor",
-  COMMENTER = "commentOnlyWorkspaceUser",
-  WRITE_ONLY = "writeOnlyWorkspaceUser",
-  READ_ONLY = "readOnlyWorkspaceUser",
+class IWorkspacePermission {
+  private static instance?: IWorkspacePermission;
+  private map = new Map<UserRole, string>([
+    [UserRole.OWNER, "workspaceOwner"],
+    [UserRole.ADMIN, "workspaceAdmin"],
+    [UserRole.USER, "workspaceUser"],
+    [UserRole.CONTRIBUTOR, "workspaceContributor"],
+    [UserRole.COMMENTER, "commentOnlyWorkspaceUser"],
+    [UserRole.WRITE_ONLY, "writeOnlyWorkspaceUser"],
+    [UserRole.READ_ONLY, "readOnlyWorkspaceUser"],
+  ]);
+  private reversedMap: Map<string, UserRole>;
+
+  private constructor() {
+    this.reversedMap = new Map();
+    for (const [role, name] of this.map.entries()) {
+      this.reversedMap.set(name, role);
+    }
+  }
+
+  public static getInstance(): IWorkspacePermission {
+    if (!this.instance) {
+      this.instance = new IWorkspacePermission();
+    }
+    return this.instance;
+  }
+
+  public getRole(name: string): UserRole {
+    return this.reversedMap.get(name) || UserRole.UNKNOWN;
+  }
+
+  public getName(role: UserRole): string {
+    return this.map.get(role) || "";
+  }
 }
 
-export interface IWorkspaceAccess {
+interface IWorkspaceAccess {
   uuid: string;
   workspaceId: number;
-  userId: number;
+  userId: number | null;
   groupId: number | null;
-  roleId: IWorkspacePermission;
+  roleId: string;
 }
 
 export interface IWorkspace {
@@ -36,7 +65,7 @@ export interface IWorkspace {
   lists: Array<ICollection>;
 }
 
-export class Workspace {
+export class Workspace implements IChatGroup {
   public data: IWorkspace;
   private _collections: Map<number, Collection>;
 
@@ -48,6 +77,60 @@ export class Workspace {
       const collection = new ctor(list);
       this._collections.set(collection.id, collection);
     }
+  }
+
+  public async setUserRole(userId: number, role: UserRole): Promise<boolean>;
+  public async setUserRole(user: IUser, role: UserRole): Promise<boolean>;
+  public async setUserRole(
+    userOrId: IUser | number,
+    role: UserRole
+  ): Promise<boolean> {
+    const userId = typeof userOrId === "number" ? userOrId : userOrId.id;
+    const userAccesses = (await this.listAccessInfo())[userId] || null;
+    if (userAccesses && userAccesses.userAccessIds.length > 0) {
+      return (
+        (await this.setAccess(
+          userAccesses.userAccessIds[0].uuid,
+          IWorkspacePermission.getInstance().getName(role)
+        )) !== undefined
+      );
+    }
+    return typeof userOrId === "object"
+      ? (await this.addAccess(
+          userOrId.uuid,
+          IWorkspacePermission.getInstance().getName(role)
+        )) !== undefined
+      : false;
+  }
+
+  public async getUserRole(userId: number): Promise<UserRole>;
+  public async getUserRole(user: IUser): Promise<UserRole>;
+  public async getUserRole(userOrId: IUser | number): Promise<UserRole> {
+    const userId = typeof userOrId === "number" ? userOrId : userOrId.id;
+    const userAccesses = (await this.listAccessInfo())[userId] || null;
+    let res = UserRole.UNKNOWN;
+    if (userAccesses) {
+      for (const access of userAccesses.groupAccessIds) {
+        res = Math.max(access.role, res);
+      }
+      for (const access of userAccesses.userAccessIds) {
+        res = Math.max(access.role, res);
+      }
+    }
+    return res;
+  }
+
+  public async removeUser(userId: number): Promise<boolean>;
+  public async removeUser(user: IUser): Promise<boolean>;
+  public async removeUser(userOrId: IUser | number): Promise<boolean> {
+    const userId = typeof userOrId === "number" ? userOrId : userOrId.id;
+    const userAccesses = (await this.listAccessInfo())[userId] || null;
+    if (userAccesses) {
+      for (const access of userAccesses.userAccessIds) {
+        await this.removeAccess(access.uuid);
+      }
+    }
+    return true;
   }
 
   public get id(): number {
@@ -108,54 +191,78 @@ export class Workspace {
     );
   }
 
-  public async listAccessInfo(): Promise<{
-    users: Array<IUser>;
-    accesses: Array<IWorkspaceAccess>;
-    groups: Array<IGroup>;
-  }> {
+  public async listAccessInfo(): Promise<Record<number, IUserAccess>> {
     const res = await axios.get(`${BASE_URL}/workspaces/${this.id}/accesses`);
     // console.log(res.data);
-    return (
+    const data =
       (res.data as {
         users: Array<IUser>;
         accesses: Array<IWorkspaceAccess>;
         groups: Array<IGroup>;
-      }) || []
-    );
+      }) || [];
+
+    const userMapping: Record<number, IUserAccess> = {};
+    const groupMapping: Record<number, { userIds: Array<number> }> = {};
+
+    for (const usr of data.users) {
+      userMapping[usr.id] = {
+        id: usr.id,
+        uuid: usr.uuid,
+        userAccessIds: [],
+        groupAccessIds: [],
+      };
+    }
+    for (const grp of data.groups) {
+      groupMapping[grp.id] = { userIds: grp.userIds };
+    }
+
+    for (const access of data.accesses) {
+      if (access.userId) {
+        userMapping[access.userId].userAccessIds.push({
+          uuid: access.uuid,
+          role: IWorkspacePermission.getInstance().getRole(access.roleId),
+        });
+      } else if (access.groupId) {
+        for (const usr of groupMapping[access.groupId].userIds) {
+          userMapping[usr].groupAccessIds.push({
+            uuid: access.uuid,
+            role: IWorkspacePermission.getInstance().getRole(access.roleId),
+          });
+        }
+      }
+    }
+
+    return userMapping;
   }
 
-  public async addUser(
+  public async addAccess(
     userUUID: string,
-    role: IWorkspacePermission
-  ): Promise<IUser> {
-    const res: { status: number; data: IUser } = await axios.post(
-      `${BASE_URL}/workspaces/${this.id}/accesses`,
-      {
+    role: string
+  ): Promise<IWorkspaceAccess | undefined> {
+    const res: { status: number; data?: { access: IWorkspaceAccess } } =
+      await axios.post(`${BASE_URL}/workspaces/${this.id}/accesses`, {
         roleId: role,
         userUUID: userUUID,
-      }
-    );
-    return res.data;
+      });
+    return res.data?.access;
   }
 
   public async setAccess(
-    access: IWorkspaceAccess,
-    role: IWorkspacePermission
-  ): Promise<IWorkspaceAccess> {
-    const res: { status: number; data: { access: IWorkspaceAccess } } =
+    accessUUID: string,
+    role: string
+  ): Promise<IWorkspaceAccess | undefined> {
+    const res: { status: number; data?: { access: IWorkspaceAccess } } =
       await axios.put(
-        `${BASE_URL}/workspaces/${this.id}/accesses/${access.uuid}`,
+        `${BASE_URL}/workspaces/${this.id}/accesses/${accessUUID}`,
         { roleId: role }
       );
-    return res.data.access;
+    return res.data?.access;
   }
 
-  public async removeAccess(
-    access: IWorkspaceAccess
-  ): Promise<IWorkspaceAccess> {
+  public async removeAccess(accessUUID: string): Promise<IWorkspaceAccess> {
     const res: { status: number; data: { access: IWorkspaceAccess } } =
       await axios.delete(
-        `${BASE_URL}/workspaces/${this.id}/accesses/${access.uuid}`
+        `${BASE_URL}/workspaces/${this.id}/accesses/${accessUUID}`
       );
     return res.data.access;
   }

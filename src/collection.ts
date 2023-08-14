@@ -15,22 +15,51 @@ import type { ReadStream } from "fs";
 import type { IGroup } from "./group";
 import { assertReturnCode } from "./utils";
 import generateORM from "./orm";
+import type { IChatGroup, IUserAccess } from "./chat";
+import { UserRole } from "./chat";
 
-export enum ICollectionPermission {
-  ADMIN = "listAdmin",
-  USER = "listUser",
-  CONTRIBUTOR = "listContributor",
-  COMMENTER = "commentOnlyListUser",
-  WRITE_ONLY = "writeOnlyListUser",
-  READ_ONLY = "readOnlyListUser",
+class ICollectionPermission {
+  private static instance?: ICollectionPermission;
+  private map = new Map<UserRole, string>([
+    [UserRole.OWNER, "listOwner"],
+    [UserRole.ADMIN, "listAdmin"],
+    [UserRole.USER, "listUser"],
+    [UserRole.CONTRIBUTOR, "listContributor"],
+    [UserRole.COMMENTER, "commentOnlyListUser"],
+    [UserRole.WRITE_ONLY, "writeOnlyListUser"],
+    [UserRole.READ_ONLY, "readOnlyListUser"],
+  ]);
+  private reversedMap: Map<string, UserRole>;
+
+  private constructor() {
+    this.reversedMap = new Map();
+    for (const [role, name] of this.map.entries()) {
+      this.reversedMap.set(name, role);
+    }
+  }
+
+  public static getInstance(): ICollectionPermission {
+    if (!this.instance) {
+      this.instance = new ICollectionPermission();
+    }
+    return this.instance;
+  }
+
+  public getRole(name: string): UserRole {
+    return this.reversedMap.get(name) || UserRole.UNKNOWN;
+  }
+
+  public getName(role: UserRole): string {
+    return this.map.get(role) || "";
+  }
 }
 
 export interface ICollectionAccess {
   uuid: string;
   workspaceId: number;
-  userId: number;
+  userId: number | null;
   groupId: number | null;
-  roleId: ICollectionPermission;
+  roleId: string;
   provider: unknown;
   providerData: unknown;
   elementRestrictions: unknown;
@@ -51,7 +80,7 @@ export interface ICollection {
   visibility: number;
 }
 
-export class Collection {
+export class Collection implements IChatGroup {
   public static typedCollections = new Map<
     string,
     new (col: ICollection) => Collection
@@ -67,6 +96,60 @@ export class Collection {
   public constructor(jsonData: ICollection) {
     this.data = jsonData;
     this._entries = [];
+  }
+
+  public async setUserRole(userId: number, role: UserRole): Promise<boolean>;
+  public async setUserRole(user: IUser, role: UserRole): Promise<boolean>;
+  public async setUserRole(
+    userOrId: IUser | number,
+    role: UserRole
+  ): Promise<boolean> {
+    const userId = typeof userOrId === "number" ? userOrId : userOrId.id;
+    const userAccesses = (await this.listAccessInfo())[userId] || null;
+    if (userAccesses && userAccesses.userAccessIds.length > 0) {
+      return (
+        (await this.setAccess(
+          userAccesses.userAccessIds[0].uuid,
+          ICollectionPermission.getInstance().getName(role)
+        )) !== undefined
+      );
+    }
+    return typeof userOrId === "object"
+      ? (await this.addAccess(
+          userOrId.uuid,
+          ICollectionPermission.getInstance().getName(role)
+        )) !== undefined
+      : false;
+  }
+
+  public async getUserRole(userId: number): Promise<UserRole>;
+  public async getUserRole(user: IUser): Promise<UserRole>;
+  public async getUserRole(userOrId: IUser | number): Promise<UserRole> {
+    const userId = typeof userOrId === "number" ? userOrId : userOrId.id;
+    const userAccesses = (await this.listAccessInfo())[userId] || null;
+    let res = UserRole.UNKNOWN;
+    if (userAccesses) {
+      for (const access of userAccesses.groupAccessIds) {
+        res = Math.max(access.role, res);
+      }
+      for (const access of userAccesses.userAccessIds) {
+        res = Math.max(access.role, res);
+      }
+    }
+    return res;
+  }
+
+  public async removeUser(userId: number): Promise<boolean>;
+  public async removeUser(user: IUser): Promise<boolean>;
+  public async removeUser(userOrId: IUser | number): Promise<boolean> {
+    const userId = typeof userOrId === "number" ? userOrId : userOrId.id;
+    const userAccesses = (await this.listAccessInfo())[userId] || null;
+    if (userAccesses) {
+      for (const access of userAccesses.userAccessIds) {
+        await this.removeAccess(access.uuid);
+      }
+    }
+    return true;
   }
 
   public get id(): number {
@@ -96,58 +179,84 @@ export class Collection {
     Collection.typedCollections.set(cls.uuid, cls);
   }
 
-  public async addUser(
+  public async addAccess(
     userUUID: string,
-    role: ICollectionPermission
-  ): Promise<string> {
-    const res = await axios.post(`${BASE_URL}/lists/${this.id}/accesses`, {
-      roleId: role,
-      userUUID: userUUID,
-    });
-    return res.data as string;
+    role: string
+  ): Promise<ICollectionAccess | undefined> {
+    const res: { data?: { access: ICollectionAccess } } = await axios.post(
+      `${BASE_URL}/lists/${this.id}/accesses`,
+      {
+        roleId: role,
+        userUUID: userUUID,
+      }
+    );
+    return res.data?.access as ICollectionAccess;
   }
 
-  public async listAccessInfo(): Promise<{
-    users: Array<IUser>;
-    accesses: Array<ICollectionAccess>;
-    groups: Array<IGroup>;
-  }> {
+  public async setAccess(
+    accessUUID: string,
+    role: string
+  ): Promise<ICollectionAccess | undefined> {
+    const res: { status: number; data?: { access: ICollectionAccess } } =
+      await axios.put(`${BASE_URL}/lists/${this.id}/accesses/${accessUUID}`, {
+        roleId: role,
+      });
+    assertReturnCode(res, 200);
+    return res.data?.access;
+  }
+
+  public async removeAccess(accessUUID: string): Promise<ICollectionAccess> {
+    const res: { status: 200; data: { access: ICollectionAccess } } =
+      await axios.delete(`${BASE_URL}/lists/${this.id}/accesses/${accessUUID}`);
+    assertReturnCode(res, 200);
+    return res.data.access;
+  }
+
+  public async listAccessInfo(): Promise<Record<number, IUserAccess>> {
     const res = await axios.get(`${BASE_URL}/lists/${this.id}/accesses`);
-    // console.log(res.data);
-    return (
+    const data =
       (res.data as {
         users: Array<IUser>;
         accesses: Array<ICollectionAccess>;
         groups: Array<IGroup>;
-      }) || []
-    );
-  }
+      }) || [];
 
-  public async setAccess(
-    access: ICollectionAccess,
-    role: ICollectionPermission
-  ): Promise<ICollectionAccess> {
-    const res: { status: number; data: { access: ICollectionAccess } } =
-      await axios.put(`${BASE_URL}/lists/${this.id}/accesses/${access.uuid}`, {
-        roleId: role,
-      });
-    assertReturnCode(res, 200);
-    return res.data.access;
+    const userMapping: Record<number, IUserAccess> = {};
+    const groupMapping: Record<number, { userIds: Array<number> }> = {};
+
+    for (const usr of data.users) {
+      userMapping[usr.id] = {
+        id: usr.id,
+        uuid: usr.uuid,
+        userAccessIds: [],
+        groupAccessIds: [],
+      };
+    }
+    for (const grp of data.groups) {
+      groupMapping[grp.id] = { userIds: grp.userIds };
+    }
+
+    for (const access of data.accesses) {
+      if (access.userId) {
+        userMapping[access.userId].userAccessIds.push({
+          uuid: access.uuid,
+          role: ICollectionPermission.getInstance().getRole(access.roleId),
+        });
+      } else if (access.groupId) {
+        for (const usr of groupMapping[access.groupId].userIds) {
+          userMapping[usr].groupAccessIds.push({
+            uuid: access.uuid,
+            role: ICollectionPermission.getInstance().getRole(access.roleId),
+          });
+        }
+      }
+    }
+
+    return userMapping;
   }
 
   public async generateORM(prefix?: string): Promise<string> {
     return generateORM(this, prefix);
-  }
-
-  public async removeAccess(
-    access: ICollectionAccess
-  ): Promise<ICollectionAccess> {
-    const res: { status: 200; data: { access: ICollectionAccess } } =
-      await axios.delete(
-        `${BASE_URL}/lists/${this.id}/accesses/${access.uuid}`
-      );
-    assertReturnCode(res, 200);
-    return res.data.access;
   }
 
   public listEntries(): Array<{ key: string; id: number }> {

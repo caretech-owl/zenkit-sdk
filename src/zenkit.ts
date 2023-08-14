@@ -4,7 +4,10 @@ import { type Workspace } from "./workspace";
 import { getCurrentWorkspaces } from "./workspace";
 import type { Collection, ICollection } from "./collection";
 import { isTypedCollection } from "./collection";
-import type { IChat } from "./chat";
+import type { IChat, IChatGroup } from "./chat";
+import axios from "axios";
+import { EP_GET_USER } from "./config";
+import { assertReturnCode } from "./utils";
 
 export default class Zenkit {
   private user: IUser;
@@ -40,6 +43,14 @@ export default class Zenkit {
     return this.user.settings.chats as Array<IChat>;
   }
 
+  public async getUser(query: string): Promise<Array<IUser>> {
+    const res = await axios.get(EP_GET_USER, {
+      params: { query: query, includeSelf: false },
+    });
+    assertReturnCode(res, 200);
+    return (res.data as { users: Array<IUser> }).users;
+  }
+
   public static async createAsync(): Promise<Zenkit> {
     const user = await getCurrentUser();
     if (!user) {
@@ -52,10 +63,10 @@ export default class Zenkit {
     return new Zenkit(user, workspaces);
   }
 
-  public chat(id: number): Workspace | Collection | null;
-  public chat(name: string): Workspace | Collection | null;
+  public chat(id: number): IChatGroup | null;
+  public chat(name: string): IChatGroup | null;
 
-  public chat(param: number | string): Workspace | Collection | null {
+  public chat(param: number | string): IChatGroup | null {
     if (typeof param === "number") {
       return this._chats.get(param) || null;
     }

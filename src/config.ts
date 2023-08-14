@@ -9,13 +9,14 @@ export const CHAT_URL = "https://chat.zenkit.com/api/v1";
 const API_KEY = process.env.ZENKIT_API_KEY;
 
 export const EP_GET_CURRENT_USER = CHAT_URL + "/auth/currentuser";
+export const EP_GET_USER = CHAT_URL + "/users";
 export const EP_GET_WORKSPACES = BASE_URL + "/users/me/workspacesWithLists";
 
 axios.interceptors.request.use((config) => {
   if (!("Content-Type" in config.headers)) {
     config.headers["Content-Type"] = "application/json";
   }
-  if (config.url?.startsWith(BASE_URL)) {
+  if (config.url?.startsWith(BASE_URL) || config.url?.startsWith(CHAT_URL)) {
     config.headers["Zenkit-API-Key"] = API_KEY;
   }
   return config;

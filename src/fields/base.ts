@@ -7,21 +7,21 @@ export type ArrayFieldType = Array<ValueFieldType>;
 export type FieldType = ArrayField<ValueFieldType> | ValueField<ValueFieldType>;
 
 export abstract class FieldBase<T> {
-  entry: IEntry;
-  edited: boolean;
-  element: Element;
+  public entry: IEntry;
+  public edited: boolean;
+  public element: Element;
 
-  get name() {
+  public get name(): string {
     return this.element.fieldName;
   }
 
-  constructor(entry: IEntry, element: Element) {
+  public constructor(entry: IEntry, element: Element) {
     this.entry = entry;
     this.edited = false;
     this.element = element;
   }
 
-  get value(): T {
+  public get value(): T {
     return this.entry[this.element.fieldName] as T;
   }
 }
@@ -29,7 +29,7 @@ export abstract class FieldBase<T> {
 export abstract class ValueField<
   T extends FieldValueType
 > extends FieldBase<T> {
-  set(newValue: T) {
+  public set(newValue: T): void {
     this.edited = this.edited || newValue != this.value;
     this.entry[this.element.fieldName] = newValue;
   }
@@ -38,30 +38,30 @@ export abstract class ValueField<
 export abstract class ArrayField<T extends FieldValueType> extends FieldBase<
   Array<T>
 > {
-  add(newValue: T) {
+  public add(newValue: T): void {
     if (this.value.indexOf(newValue) === -1) {
       this.value.push(newValue);
       this.edited = true;
     }
   }
 
-  removeValue(oldValue: T) {
+  public removeValue(oldValue: T): void {
     const index = this.value.indexOf(oldValue);
     if (index > -1) {
       this.removeIndex(index);
     }
   }
 
-  removeIndex(index: number) {
+  public removeIndex(index: number): void {
     this.edited = true;
     this.value.splice(index, 1);
   }
 
-  get(i: number): T {
+  public get(i: number): T {
     return this.value[i];
   }
 
-  clear() {
+  public clear(): void {
     this.edited = true;
     this.entry[this.element.fieldName] = [];
   }
