@@ -1,5 +1,12 @@
 # Changelog 
 
+## Release 0.1.7
+
+- moved generateORM back to Collection
+- improve Webhook handling
+- improved user permission/access handling
+- switch to chat.zenkit user endpoint for 'chat' attribute
+
 ## Release 0.1.6
 
 - introduce codecov and github action unit testing
