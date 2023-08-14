@@ -4,7 +4,7 @@ import { type Workspace } from "./workspace";
 import { getCurrentWorkspaces } from "./workspace";
 import type { Collection, ICollection } from "./collection";
 import { isTypedCollection } from "./collection";
-import type { IChat, IChatGroup } from "./chat";
+import type { IChatGroup } from "./chat";
 import axios from "axios";
 import { EP_GET_USER } from "./config";
 import { assertReturnCode } from "./utils";
