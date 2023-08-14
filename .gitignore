@@ -137,3 +137,6 @@ examples/scratchpad.ts
 
 # linting reports
 eslint_report.json
+
+# REST Test
+thunder-tests
