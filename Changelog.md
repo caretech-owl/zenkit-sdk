@@ -1,5 +1,11 @@
 # Changelog 
 
+## Release 0.1.8
+
+- improved handling of chat room users
+- add name to chatroom interface
+- user resourceTags instead of incomplete chat attribute
+
 ## Release 0.1.7
 
 - moved generateORM back to Collection
