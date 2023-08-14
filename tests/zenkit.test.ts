@@ -63,7 +63,7 @@ describe("Zenkit API operations", () => {
 
   it("should return chats and comment", async () => {
     const zenkit = await Zenkit.createAsync();
-    expect(zenkit.chats).toHaveLength(2);
+    expect(Array.from(zenkit.chats)).toHaveLength(2);
     expect(zenkit.chat(42)).toBe(zenkit.workspace(42));
     const chat = zenkit.chat(421);
     if (!chat) {
