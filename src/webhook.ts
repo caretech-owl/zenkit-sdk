@@ -16,7 +16,7 @@ export interface IWebhook {
 }
 
 export class Webhook {
-  private _data: IWebhook;
+  public data: IWebhook;
 
   public static async createWebhook(
     address: string,
@@ -44,11 +44,11 @@ export class Webhook {
   }
 
   private constructor(data: IWebhook) {
-    this._data = data;
+    this.data = data;
   }
 
   public async delete(): Promise<boolean> {
-    const res = await axios.delete(`${BASE_URL}/webhooks/${this._data.id}`);
+    const res = await axios.delete(`${BASE_URL}/webhooks/${this.data.id}`);
     return res.status == 200;
   }
 }
