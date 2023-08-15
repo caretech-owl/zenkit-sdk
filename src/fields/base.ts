@@ -24,6 +24,10 @@ export abstract class FieldBase<T> {
   public get value(): T {
     return this.entry[this.element.fieldName] as T;
   }
+
+  public getData(): Array<{ field: string; value: T | null }> {
+    return [{ field: this.element.fieldName, value: this.value }];
+  }
 }
 
 export abstract class ValueField<

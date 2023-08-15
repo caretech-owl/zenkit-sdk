@@ -158,7 +158,9 @@ export class Entry {
     const editData: Record<string, FieldValueType> = {};
     for (const field of this.fields.values()) {
       if (field.edited) {
-        editData[field.element.fieldName] = field.value;
+        for (const data of field.getData()) {
+          editData[data.field] = data.value;
+        }
         field.edited = false;
       }
     }
