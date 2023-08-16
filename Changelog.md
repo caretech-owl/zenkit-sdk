@@ -1,5 +1,12 @@
 # Changelog 
 
+## Release 0.2.0
+
+- refactored data access and removed all (unneccessary) data 'views'
+- allow data fields to return more than one value; required for DataFields with 'endDate' and 'hasTime'
+- enhanced DataField capabilities with setEndDate and automatically set 'hasTime'
+- allow sorting of entries by a passed sort functions
+
 ## Release 0.1.8
 
 - improved handling of chat room users
