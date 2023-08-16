@@ -37,7 +37,7 @@ describe("Zenkit API operations", () => {
     const zenkit = await Zenkit.createAsync();
     expect(zenkit.my).not.toBeNull();
     expect(zenkit.workspace(".")).not.toBeNull();
-    expect(zenkit.workspaces).toHaveLength(1);
+    expect(Array.from(zenkit.workspaces)).toHaveLength(1);
   });
 
   it("should get the workspace 'Test Bot Workspace'", async () => {
