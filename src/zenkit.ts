@@ -74,8 +74,9 @@ export default class Zenkit {
     if (typeof param === "number") {
       return this._chats.get(param) || null;
     }
+    const reg = new RegExp(param);
     return (
-      [...this._chats.values()].find((chat) => chat.name === param) || null
+      [...this._chats.values()].find((chat) => reg.test(chat.name)) || null
     );
   }
 
