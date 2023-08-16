@@ -29,7 +29,7 @@ export interface IChatGroup {
   id: number;
   name: string;
   createCommentWebhook: (address: string) => Promise<Webhook | null>;
-  listComments: (limit: number) => Promise<Array<IComment>>;
+  getComments: (limit: number) => Promise<Array<IComment>>;
   deleteComment: (comment: IComment) => Promise<boolean>;
   comment: (
     message: string,
@@ -42,5 +42,5 @@ export interface IChatGroup {
     ((user: IUser) => Promise<UserRole>);
   removeUser: ((userId: number) => Promise<boolean>) &
     ((user: IUser) => Promise<boolean>);
-  listUsers: (roles?: Array<UserRole>) => Promise<Array<IUser>>;
+  getUsers: (roles?: Array<UserRole>) => Promise<Array<IUser>>;
 }

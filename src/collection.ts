@@ -106,7 +106,7 @@ export class Collection implements IChatGroup {
     role: UserRole
   ): Promise<boolean> {
     const userId = typeof userOrId === "number" ? userOrId : userOrId.id;
-    const userAccesses = (await this.listAccessInfo()).get(userId) || null;
+    const userAccesses = (await this.getAccessInfo()).get(userId) || null;
     if (userAccesses && userAccesses.userAccessIds.length > 0) {
       return (
         (await this.setAccess(
@@ -123,7 +123,7 @@ export class Collection implements IChatGroup {
       : false;
   }
 
-  public async listUsers(roles: Array<UserRole> = []): Promise<Array<IUser>> {
+  public async getUsers(roles: Array<UserRole> = []): Promise<Array<IUser>> {
     if (roles.length === 0) {
       const res = await axios.get(`${BASE_URL}/lists/${this.id}/accesses`);
       const data =
@@ -133,7 +133,7 @@ export class Collection implements IChatGroup {
       return data.users || [];
     }
     const users = [];
-    const access = await this.listAccessInfo();
+    const access = await this.getAccessInfo();
     for (const userAccesses of access.values()) {
       for (const access of userAccesses.userAccessIds) {
         if (roles.indexOf(access.role) > -1) {
@@ -149,7 +149,7 @@ export class Collection implements IChatGroup {
   public async getUserRole(user: IUser): Promise<UserRole>;
   public async getUserRole(userOrId: IUser | number): Promise<UserRole> {
     const userId = typeof userOrId === "number" ? userOrId : userOrId.id;
-    const userAccesses = (await this.listAccessInfo()).get(userId) || null;
+    const userAccesses = (await this.getAccessInfo()).get(userId) || null;
     let res = UserRole.UNKNOWN;
     if (userAccesses) {
       for (const access of userAccesses.groupAccessIds) {
@@ -166,7 +166,7 @@ export class Collection implements IChatGroup {
   public async removeUser(user: IUser): Promise<boolean>;
   public async removeUser(userOrId: IUser | number): Promise<boolean> {
     const userId = typeof userOrId === "number" ? userOrId : userOrId.id;
-    const userAccesses = (await this.listAccessInfo()).get(userId) || null;
+    const userAccesses = (await this.getAccessInfo()).get(userId) || null;
     if (userAccesses) {
       for (const access of userAccesses.userAccessIds) {
         await this.removeAccess(access.uuid);
@@ -235,7 +235,7 @@ export class Collection implements IChatGroup {
     return res.data.access;
   }
 
-  public async listAccessInfo(): Promise<Map<number, IUserAccess>> {
+  public async getAccessInfo(): Promise<Map<number, IUserAccess>> {
     const res = await axios.get(`${BASE_URL}/lists/${this.id}/accesses`);
     const data =
       (res.data as {
@@ -281,13 +281,11 @@ export class Collection implements IChatGroup {
     return generateORM(this, prefix);
   }
 
-  public listEntries(): Array<{ key: string; id: number }> {
-    return this._entries.map((ent) => {
-      return { key: ent.primaryKey, id: ent.id };
-    });
+  public get entries(): Array<Entry> {
+    return this._entries;
   }
 
-  public async listComments(limit = 100): Promise<Array<IComment>> {
+  public async getComments(limit = 100): Promise<Array<IComment>> {
     const res: { status: number; data: { activities?: Array<IComment> } } =
       await axios.get(
         `${BASE_URL}/lists/${this.id}/activities?filter=2&limit=${limit}`

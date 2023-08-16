@@ -39,12 +39,8 @@ export default class Zenkit {
     return this.user;
   }
 
-  public get workspaces(): Array<{ id: number; name: string }> {
-    const res = [];
-    for (const ws of this._workspaces.values()) {
-      res.push({ id: ws.id, name: ws.name });
-    }
-    return res;
+  public get workspaces(): IterableIterator<Workspace> {
+    return this._workspaces.values();
   }
 
   public get chats(): IterableIterator<IChatGroup> {

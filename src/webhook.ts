@@ -38,7 +38,7 @@ export class Webhook {
     return null;
   }
 
-  public static async listWebhooks(): Promise<Array<Webhook>> {
+  public static async getWebhooks(): Promise<Array<Webhook>> {
     const res = await axios.get(`${BASE_URL}/users/me/webhooks`);
     return (res.data as Array<IWebhook>).map((hook) => new Webhook(hook));
   }

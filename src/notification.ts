@@ -33,7 +33,7 @@ export class Notification {
     this.data = data;
   }
 
-  public static async listNotifications(
+  public static async getNotifications(
     isRead?: boolean
   ): Promise<Array<Notification>> {
     const params: { isRead?: boolean } = {};

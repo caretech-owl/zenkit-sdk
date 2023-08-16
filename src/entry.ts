@@ -135,7 +135,7 @@ export class Entry {
     );
   }
 
-  public async listComments(): Promise<Array<IComment>> {
+  public async getComments(): Promise<Array<IComment>> {
     const res: { status: number; data: { activities: Array<IComment> } } =
       await axios.get(
         `${BASE_URL}/lists/${this.data.listId}/entries/${this.id}/activities?filter=2`
