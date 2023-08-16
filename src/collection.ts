@@ -385,6 +385,19 @@ export class Collection implements IChatGroup {
     return this.getEntryByKey(param);
   }
 
+  public async sortEntries<T extends Entry>(
+    fn: (a: T, b: T) => number
+  ): Promise<void> {
+    await this.populate();
+    this._entries.sort((a, b) => fn(a as T, b as T));
+    for (let i = 0; i < this._entries.length; ++i) {
+      const entry = this._entries[i];
+      if (entry.sortOrder !== i.toString()) {
+        await this._entries[i].setSortOrder(i);
+      }
+    }
+  }
+
   public async getElements(): Promise<Array<Element>> {
     if (this._elements === undefined) {
       this._elements = await this.requestElements();

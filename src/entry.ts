@@ -24,6 +24,7 @@ export interface IEntry {
   displayString: string;
   comment_count: number;
   listId: number;
+  sortOrder: string;
   [key: string]: FieldValueType;
   //   [key: `${string}_text`]: string;
   //   [key: `${string}_date`]: string; // TODO make DateStringType YYYY-MM-DD (HH:mm:ss)
@@ -84,6 +85,14 @@ export class Entry {
 
   public get id(): number {
     return this.data.id;
+  }
+
+  public get uuid(): string {
+    return this.data.uuid;
+  }
+
+  public get sortOrder(): string {
+    return this.data.sortOrder;
   }
 
   public async deleteFile(fileId: number): Promise<IFile>;
@@ -170,6 +179,14 @@ export class Entry {
         editData
       );
     }
+  }
+
+  public async setSortOrder(idx: number): Promise<void> {
+    const res = await axios.put(
+      `${BASE_URL}/lists/${this.data.listId}/entries/${this.id}`,
+      { sortOrder: idx }
+    );
+    assertReturnCode(res, 200);
   }
 
   public async delete(): Promise<boolean> {
