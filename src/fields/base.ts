@@ -6,7 +6,7 @@ export type ValueFieldType = string | number | null | boolean | object;
 export type ArrayFieldType = Array<ValueFieldType>;
 export type FieldType = ArrayField<ValueFieldType> | ValueField<ValueFieldType>;
 
-export abstract class FieldBase<T> {
+export abstract class FieldBase<T extends FieldValueType> {
   public entry: IEntry;
   public edited: boolean;
   public element: Element;
@@ -25,7 +25,7 @@ export abstract class FieldBase<T> {
     return this.entry[this.element.fieldName] as T;
   }
 
-  public getData(): Array<{ field: string; value: T | null }> {
+  public getData(): Array<{ field: string; value: FieldValueType }> {
     return [{ field: this.element.fieldName, value: this.value }];
   }
 }

@@ -1,4 +1,4 @@
-import { ValueField } from "./base";
+import { type FieldValueType, ValueField } from "./base";
 
 export default class DateField extends ValueField<string> {
   private get endDateFieldName(): string {
@@ -22,12 +22,17 @@ export default class DateField extends ValueField<string> {
   }
 
   public setEndDate(dateString: string | null): void {
+    this.edited = this.edited || dateString != this.endDate;
     this.entry[this.endDateFieldName] = dateString;
-    this.edited = true;
   }
 
-  public getData(): Array<{ field: string; value: string | null }> {
+  public getData(): Array<{ field: string; value: FieldValueType }> {
     const res = super.getData();
+    res.push({
+      field: `${this.element.uuid}_hasTime`,
+      value:
+        (this.endDate?.indexOf(":") || -1) > -1 || this.value.indexOf(":") > -1,
+    });
     res.push({ field: this.endDateFieldName, value: this.endDate });
     return res;
   }
