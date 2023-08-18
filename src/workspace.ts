@@ -6,7 +6,7 @@ import type { IUser } from "./user";
 import type { ReadStream } from "fs";
 import type { IFile } from "./file";
 import { addFile, uploadFile } from "./file";
-import { type IComment, deleteComment } from "./comment";
+import { type IComment, deleteComment, type IActivity } from "./comment";
 import { comment } from "./comment";
 import { TriggerType, Webhook } from "./webhook";
 import type { IGroup } from "./group";
@@ -285,12 +285,20 @@ export class Workspace implements IChatGroup {
     return res.data.access;
   }
 
-  public async getComments(limit = 100): Promise<Array<IComment>> {
-    const res: { status: number; data: { activities: Array<IComment> } } =
+  public async getComments(limit = 100, skip = 0): Promise<Array<IComment>> {
+    return this.getActivities(2, limit, skip);
+  }
+
+  public async getActivities(
+    type = 0,
+    limit = 100,
+    skip = 0
+  ): Promise<Array<IActivity>> {
+    const res: { status: number; data: { activities?: Array<IActivity> } } =
       await axios.get(
-        `${BASE_URL}/workspaces/${this.id}/activities?filter=2&limit=${limit}`
+        `${BASE_URL}/workspaces/${this.id}/activities?filter=${type}&limit=${limit}&skip=${skip}`
       );
-    return res.data.activities;
+    return res.data.activities || [];
   }
 
   public async uploadFile(filePath: string): Promise<IFile | null> {

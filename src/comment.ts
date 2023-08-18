@@ -11,16 +11,34 @@ export interface IEnrichment {
   file?: IFile;
 }
 
-export interface IComment {
+export enum IAcivityType {
+  COMMENT = 0,
+  CREATED = 1,
+  UPDATED = 2,
+  DEPRECATED = 3,
+  IMPORTED = 4,
+  COPIED = 5,
+  RESTORED = 6,
+  BULK = 7,
+}
+
+export interface IComment extends IActivity {}
+
+export interface IActivity {
   id: number;
   uuid: string;
   message: string;
+  type: IAcivityType;
   parentUUID: string | null;
   listId: number | null;
   listUUID: string | null;
   workspaceId: number;
   workspaceUUID: number;
   userId: number;
+  userDisplayname: string;
+  userFullname: string;
+  userUsername: string;
+  userInitials: string;
   created_at: string;
   updated_at: string;
   enrichments?: Array<IEnrichment>;

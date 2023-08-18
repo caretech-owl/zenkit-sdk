@@ -34,11 +34,19 @@ export class Notification {
   }
 
   public static async getNotifications(
-    isRead?: boolean
+    isRead?: boolean,
+    listId?: number,
+    skip?: number
   ): Promise<Array<Notification>> {
-    const params: { isRead?: boolean } = {};
+    const params: { isRead?: boolean; listId?: number; skip?: number } = {};
     if (isRead !== undefined) {
       params.isRead = isRead;
+    }
+    if (listId !== undefined) {
+      params.listId = listId;
+    }
+    if (skip !== undefined) {
+      params.skip = skip;
     }
     const res: {
       status: number;

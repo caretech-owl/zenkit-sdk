@@ -6,7 +6,7 @@ import type { IElement } from "./element";
 import { Element } from "./element";
 import type { ValueFieldType } from "./fields/base";
 import type { IUser } from "./user";
-import type { IComment } from "./comment";
+import type { IActivity, IComment } from "./comment";
 import { comment, deleteComment } from "./comment";
 import { TriggerType, Webhook } from "./webhook";
 import type { IFile } from "./file";
@@ -285,10 +285,18 @@ export class Collection implements IChatGroup {
     return this._entries;
   }
 
-  public async getComments(limit = 100): Promise<Array<IComment>> {
+  public async getComments(limit = 100, skip = 0): Promise<Array<IComment>> {
+    return this.getActivities(2, limit, skip);
+  }
+
+  public async getActivities(
+    type = 0,
+    limit = 100,
+    skip = 0
+  ): Promise<Array<IActivity>> {
     const res: { status: number; data: { activities?: Array<IComment> } } =
       await axios.get(
-        `${BASE_URL}/lists/${this.id}/activities?filter=2&limit=${limit}`
+        `${BASE_URL}/lists/${this.id}/activities?filter=${type}&limit=${limit}&skip=${skip}`
       );
     return res.data.activities || [];
   }
