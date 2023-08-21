@@ -1,5 +1,5 @@
 import axios from "axios";
-import { BASE_URL } from "./config";
+import { EP_GET_WEBHOOKS, EP_EDIT_WEBHOOKS } from "./config";
 
 export enum TriggerType {
   ENTRY = 0,
@@ -28,7 +28,7 @@ export class Webhook {
     listId: number | null = null,
     listEntryId: number | null = null
   ): Promise<Webhook | null> {
-    const res = await axios.post(`${BASE_URL}/webhooks`, {
+    const res = await axios.post(EP_EDIT_WEBHOOKS, {
       triggerType: triggerType,
       url: address,
       workspaceId: workspaceId,
@@ -42,7 +42,7 @@ export class Webhook {
   }
 
   public static async getWebhooks(): Promise<Array<Webhook>> {
-    const res = await axios.get(`${BASE_URL}/users/me/webhooks`);
+    const res = await axios.get(EP_GET_WEBHOOKS);
     return (res.data as Array<IWebhook>).map((hook) => new Webhook(hook));
   }
 
@@ -51,7 +51,7 @@ export class Webhook {
   }
 
   public async delete(): Promise<boolean> {
-    const res = await axios.delete(`${BASE_URL}/webhooks/${this.data.id}`);
+    const res = await axios.delete(`${EP_EDIT_WEBHOOKS}/${this.data.id}`);
     return res.status == 200;
   }
 }
