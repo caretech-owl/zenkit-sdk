@@ -1,5 +1,12 @@
 # Changelog 
 
+## Release 0.2.1
+
+- generalize Comments to Actitivies [W/C/E]
+- Split IChatRoom from (manageable) IChatGroup
+- Entry is also a ChatRoom
+- filtering chat(groups) uses regex as well now
+
 ## Release 0.2.0
 
 - refactored data access and removed all (unneccessary) data 'views'
