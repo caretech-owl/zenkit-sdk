@@ -1,4 +1,8 @@
-import { EP_GET_CURRENT_USER, EP_GET_WORKSPACES } from "../src/config";
+import {
+  EP_GET_CURRENT_USER,
+  EP_GET_WEBHOOKS,
+  EP_GET_WORKSPACES,
+} from "../src/config";
 import Zenkit from "../src/zenkit";
 import axios from "axios";
 
@@ -26,6 +30,11 @@ describe("Zenkit API operations", () => {
           return Promise.resolve({
             status: 200,
             data: workspacesJsonData.array,
+          });
+        case EP_GET_WEBHOOKS:
+          return Promise.resolve({
+            status: 200,
+            data: [],
           });
         default:
           return Promise.reject(new Error(`Endpoint ${url} is invalid.`));
