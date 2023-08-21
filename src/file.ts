@@ -49,3 +49,31 @@ export async function deleteFile(fileId: number): Promise<IFile> {
   const res = await axios.delete(`${BASE_URL}/files/${fileId}`);
   return res.data as IFile;
 }
+
+export async function getFiles(
+  listId: number,
+  query?: string,
+  limit = 1000,
+  skip = 0
+): Promise<Array<IFile>> {
+  const parameters: {
+    skip: number;
+    listIds?: Array<number>;
+    limit: number;
+    searchQuery?: string;
+  } = {
+    skip: skip,
+    limit: limit,
+  };
+
+  if (listId) {
+    parameters.listIds = [listId];
+  }
+  if (query) {
+    parameters.searchQuery = query;
+  }
+
+  const res: { status: number; data: { files: Array<IFile> } } =
+    await axios.post(`${BASE_URL}/users/me/files`, parameters);
+  return res.data.files;
+}

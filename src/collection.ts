@@ -10,7 +10,7 @@ import type { IActivity, IComment } from "./comment";
 import { comment, deleteComment } from "./comment";
 import { TriggerType, Webhook } from "./webhook";
 import type { IFile } from "./file";
-import { addFile, deleteFile, uploadFile } from "./file";
+import { addFile, deleteFile, getFiles, uploadFile } from "./file";
 import type { ReadStream } from "fs";
 import type { IGroup } from "./group";
 import { assertReturnCode } from "./utils";
@@ -310,6 +310,10 @@ export class Collection implements IChatGroup {
     fileName: string
   ): Promise<IFile> {
     return addFile(data, fileName, `${BASE_URL}/lists/${this.id}/files`);
+  }
+
+  public async getFiles(query?: string): Promise<Array<IFile>> {
+    return getFiles(this.id, query);
   }
 
   public async comment(
