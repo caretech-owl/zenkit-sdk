@@ -8,15 +8,30 @@ import type { IChatGroup } from "./chat";
 import axios from "axios";
 import { EP_GET_USER } from "./config";
 import { assertReturnCode } from "./utils";
+import { Webhook } from "./webhook";
 
 export default class Zenkit {
-  private user: IUser;
-  private _workspaces: Map<number, Workspace>;
-  private _chats: Map<number, Workspace | Collection>;
+  private user!: IUser;
+  private _workspaces!: Map<number, Workspace>;
+  private _chats!: Map<number, Workspace | Collection>;
+  private _webhooks!: Array<Webhook>;
 
-  private constructor(user: IUser, workspaces: Map<number, Workspace>) {
+  private constructor(
+    user: IUser,
+    workspaces: Map<number, Workspace>,
+    webhooks: Array<Webhook>
+  ) {
+    this._updateFields(user, workspaces, webhooks);
+  }
+
+  private _updateFields(
+    user: IUser,
+    workspaces: Map<number, Workspace>,
+    webhooks: Array<Webhook>
+  ): void {
     this.user = user;
     this._workspaces = workspaces;
+    this._webhooks = webhooks;
     this._chats = new Map();
     for (const workspace of this._workspaces.values()) {
       for (const resTag of workspace.data.resourceTags) {
@@ -47,6 +62,23 @@ export default class Zenkit {
     return this._chats.values();
   }
 
+  public get webhooks(): Array<Webhook> {
+    return this._webhooks;
+  }
+
+  public async sync(): Promise<void> {
+    const user = await getCurrentUser();
+    if (!user) {
+      throw Error("User probably not logged in.");
+    }
+    const workspaces = await getCurrentWorkspaces();
+    if (!workspaces) {
+      throw Error(`Cannot get workspaces for user '${user.username}'.`);
+    }
+    const webhooks = await Webhook.getWebhooks();
+    this._updateFields(user, workspaces, webhooks);
+  }
+
   public async getUser(query: string): Promise<Array<IUser>> {
     const res = await axios.get(EP_GET_USER, {
       params: { query: query, includeSelf: false },
@@ -64,7 +96,8 @@ export default class Zenkit {
     if (!workspaces) {
       throw Error(`Cannot get workspaces for user '${user.username}'.`);
     }
-    return new Zenkit(user, workspaces);
+    const webhooks = await Webhook.getWebhooks();
+    return new Zenkit(user, workspaces, webhooks);
   }
 
   public chat(id: number): IChatGroup | null;
