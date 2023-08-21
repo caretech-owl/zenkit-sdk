@@ -1,4 +1,4 @@
-import type { IComment } from "./comment";
+import type { IAcivityType, IActivity, IComment } from "./comment";
 import type { IUser } from "./user";
 import type { Webhook } from "./webhook";
 
@@ -25,17 +25,27 @@ export interface IUserAccess {
   groupAccessIds: Array<{ uuid: string; role: UserRole }>;
 }
 
-export interface IChatGroup {
+export interface IChatRoom {
   id: number;
-  name: string;
+
   createCommentWebhook: (address: string) => Promise<Webhook | null>;
   getComments: (limit: number) => Promise<Array<IComment>>;
+  getActivities: (
+    type: IAcivityType,
+    limit: number,
+    skip: number
+  ) => Promise<Array<IActivity>>;
   deleteComment: (comment: IComment) => Promise<boolean>;
   comment: (
     message: string,
     parent?: string,
     fileId?: number
   ) => Promise<IComment | null>;
+}
+
+export interface IChatGroup extends IChatRoom {
+  name: string;
+
   setUserRole: ((userId: number, role: UserRole) => Promise<boolean>) &
     ((user: IUser, role: UserRole) => Promise<boolean>);
   getUserRole: ((userId: number) => Promise<UserRole>) &
