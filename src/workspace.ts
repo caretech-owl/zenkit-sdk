@@ -5,7 +5,7 @@ import { Collection, isTypedCollection } from "./collection";
 import type { IUser } from "./user";
 import type { ReadStream } from "fs";
 import type { IFile } from "./file";
-import { addFile, uploadFile } from "./file";
+import { addFile, getFiles, uploadFile } from "./file";
 import { type IComment, deleteComment, type IActivity } from "./comment";
 import { comment } from "./comment";
 import { TriggerType, Webhook } from "./webhook";
@@ -310,6 +310,13 @@ export class Workspace implements IChatGroup {
     fileName: string
   ): Promise<IFile> {
     return addFile(data, fileName, `${BASE_URL}/workspaces/${this.id}/files`);
+  }
+
+  public async getFiles(query?: string): Promise<Array<IFile>> {
+    return getFiles(
+      Array.from(this._collections.values()).map((col) => col.id),
+      query
+    );
   }
 
   // // this does not seem to be the intentede use since workspaces are currently only associated

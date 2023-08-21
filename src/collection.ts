@@ -313,7 +313,7 @@ export class Collection implements IChatGroup {
   }
 
   public async getFiles(query?: string): Promise<Array<IFile>> {
-    return getFiles(this.id, query);
+    return getFiles([this.id], query);
   }
 
   public async comment(

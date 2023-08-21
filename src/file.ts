@@ -51,7 +51,7 @@ export async function deleteFile(fileId: number): Promise<IFile> {
 }
 
 export async function getFiles(
-  listId: number,
+  listIds: Array<number>,
   query?: string,
   limit = 1000,
   skip = 0
@@ -66,14 +66,14 @@ export async function getFiles(
     limit: limit,
   };
 
-  if (listId) {
-    parameters.listIds = [listId];
+  if (listIds) {
+    parameters.listIds = listIds;
   }
   if (query) {
     parameters.searchQuery = query;
   }
 
-  const res: { status: number; data: { files: Array<IFile> } } =
+  const res: { status: number; data?: { files?: Array<IFile> } } =
     await axios.post(`${BASE_URL}/users/me/files`, parameters);
-  return res.data.files;
+  return res.data?.files || [];
 }
