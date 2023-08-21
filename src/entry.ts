@@ -4,7 +4,7 @@ import { FieldCategory } from "./element";
 import type { FieldType, FieldValueType, ValueFieldType } from "./fields/base";
 import { ValueField } from "./fields/base";
 import * as fields from "./fields/index";
-import type { IComment } from "./comment";
+import type { IActivity, IComment } from "./comment";
 import { comment, deleteComment } from "./comment";
 import { BASE_URL } from "./config";
 import type { IFile } from "./file";
@@ -12,6 +12,7 @@ import { addFile, deleteFile, uploadFile } from "./file";
 import type { ReadStream } from "fs";
 import { TriggerType, Webhook } from "./webhook";
 import { assertReturnCode } from "./utils";
+import { type IChatRoom } from "./chat";
 
 export interface IEntry {
   id: number;
@@ -47,7 +48,7 @@ const FieldMap: Record<
   [FieldCategory.CATEGORIES]: fields.CategoriesField,
 };
 
-export class Entry {
+export class Entry implements IChatRoom {
   protected data: IEntry;
   protected fields: Map<string, FieldType>;
 
@@ -135,13 +136,21 @@ export class Entry {
     );
   }
 
-  public async getComments(): Promise<Array<IComment>> {
-    const res: { status: number; data: { activities: Array<IComment> } } =
+  public async getComments(limit = 100, skip = 0): Promise<Array<IComment>> {
+    return this.getActivities(2, limit, skip);
+  }
+
+  public async getActivities(
+    type = 0,
+    limit = 100,
+    skip = 0
+  ): Promise<Array<IActivity>> {
+    const res: { status: number; data: { activities?: Array<IComment> } } =
       await axios.get(
-        `${BASE_URL}/lists/${this.data.listId}/entries/${this.id}/activities?filter=2`
+        `${BASE_URL}/lists/${this.data.listId}/entries/${this.id}/activities?filter=${type}&limit=${limit}&skip=${skip}`
       );
     assertReturnCode(res, 200);
-    return res.data.activities;
+    return res.data.activities || [];
   }
 
   public get primaryKey(): string {
