@@ -57,7 +57,7 @@ await entry.comment("Hello World");
 
 // we can retrieve fields and get or set their values
 const textField = entry.field("A text field");
-entry.field("A text field").set(`${textField.value}++`);
+textField.set(`${textField.value}++`);
 
 // entries will not be updated instantly
 // you need to commit changes once you are done
