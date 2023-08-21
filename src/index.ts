@@ -5,4 +5,4 @@ export type { IEntry as IEntry } from "./entry";
 export { Entry as Entry } from "./entry";
 export { Element as Element } from "./element";
 export * as fields from "./fields";
-export { Webhook } from "./webhook";
+export { Webhook, TriggerType } from "./webhook";

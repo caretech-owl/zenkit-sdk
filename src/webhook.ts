@@ -2,7 +2,10 @@ import axios from "axios";
 import { BASE_URL } from "./config";
 
 export enum TriggerType {
+  ENTRY = 0,
+  ACTIVITY = 1,
   NOTIFICATION = 2,
+  SYSTEM_MESSAGE = 3,
   COMMENT = 4,
 }
 
