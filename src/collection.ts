@@ -9,8 +9,7 @@ import type { IUser } from "./user";
 import type { IActivity, IComment } from "./comment";
 import { comment, deleteComment } from "./comment";
 import { TriggerType, Webhook } from "./webhook";
-import type { IFile } from "./file";
-import { addFile, deleteFile, getFiles, uploadFile } from "./file";
+import { File } from "./file";
 import type { ReadStream } from "fs";
 import type { IGroup } from "./group";
 import { assertReturnCode } from "./utils";
@@ -301,19 +300,19 @@ export class Collection implements IChatGroup {
     return res.data.activities || [];
   }
 
-  public async uploadFile(filePath: string): Promise<IFile | null> {
-    return uploadFile(filePath, `${BASE_URL}/lists/${this.id}/files`);
+  public async uploadFile(filePath: string): Promise<File | null> {
+    return File.uploadFile(filePath, `${BASE_URL}/lists/${this.id}/files`);
   }
 
   public async addFile(
     data: ReadStream | Buffer,
     fileName: string
-  ): Promise<IFile> {
-    return addFile(data, fileName, `${BASE_URL}/lists/${this.id}/files`);
+  ): Promise<File> {
+    return File.addFile(data, fileName, `${BASE_URL}/lists/${this.id}/files`);
   }
 
-  public async getFiles(query?: string): Promise<Array<IFile>> {
-    return getFiles([this.id], query);
+  public async getFiles(query?: string): Promise<Array<File>> {
+    return File.getFiles([this.id], query);
   }
 
   public async comment(
@@ -331,16 +330,6 @@ export class Collection implements IChatGroup {
 
   public async deleteComment(comment: IComment): Promise<boolean> {
     return deleteComment(comment, `${BASE_URL}/lists/${this.id}`);
-  }
-
-  public async deleteFile(fileId: number): Promise<IFile>;
-  public async deleteFile(file: IFile): Promise<IFile>;
-  public async deleteFile(param: IFile | number): Promise<IFile> {
-    if (typeof param === "number") {
-      return await deleteFile(param);
-    } else {
-      return await deleteFile(param.id);
-    }
   }
 
   public async createCommentWebhook(address: string): Promise<Webhook | null> {

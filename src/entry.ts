@@ -7,8 +7,7 @@ import * as fields from "./fields/index";
 import type { IActivity, IComment } from "./comment";
 import { comment, deleteComment } from "./comment";
 import { BASE_URL } from "./config";
-import type { IFile } from "./file";
-import { addFile, deleteFile, uploadFile } from "./file";
+import { File } from "./file";
 import type { ReadStream } from "fs";
 import { TriggerType, Webhook } from "./webhook";
 import { assertReturnCode } from "./utils";
@@ -96,16 +95,6 @@ export class Entry implements IChatRoom {
     return this.data.sortOrder;
   }
 
-  public async deleteFile(fileId: number): Promise<IFile>;
-  public async deleteFile(file: IFile): Promise<IFile>;
-  public async deleteFile(param: IFile | number): Promise<IFile> {
-    if (typeof param === "number") {
-      return await deleteFile(param);
-    } else {
-      return await deleteFile(param.id);
-    }
-  }
-
   public async createCommentWebhook(address: string): Promise<Webhook | null> {
     return Webhook.createWebhook(
       address,
@@ -157,15 +146,18 @@ export class Entry implements IChatRoom {
     return this._key?.value?.toString() || "";
   }
 
-  public async uploadFile(filePath: string): Promise<IFile | null> {
-    return uploadFile(filePath, `${BASE_URL}/lists/${this.data.listId}/files`);
+  public async uploadFile(filePath: string): Promise<File | null> {
+    return File.uploadFile(
+      filePath,
+      `${BASE_URL}/lists/${this.data.listId}/files`
+    );
   }
 
   public async addFile(
     data: ReadStream | Buffer,
     fileName: string
-  ): Promise<IFile> {
-    return addFile(
+  ): Promise<File> {
+    return File.addFile(
       data,
       fileName,
       `${BASE_URL}/lists/${this.data.listId}/files`

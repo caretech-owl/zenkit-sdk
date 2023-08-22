@@ -4,8 +4,7 @@ import type { ICollection } from "./collection";
 import { Collection, isTypedCollection } from "./collection";
 import type { IUser } from "./user";
 import type { ReadStream } from "fs";
-import type { IFile } from "./file";
-import { addFile, getFiles, uploadFile } from "./file";
+import { File } from "./file";
 import { type IComment, deleteComment, type IActivity } from "./comment";
 import { comment } from "./comment";
 import { TriggerType, Webhook } from "./webhook";
@@ -301,35 +300,27 @@ export class Workspace implements IChatGroup {
     return res.data.activities || [];
   }
 
-  public async uploadFile(filePath: string): Promise<IFile | null> {
-    return uploadFile(filePath, `${BASE_URL}/workspaces/${this.id}/files`);
+  public async uploadFile(filePath: string): Promise<File | null> {
+    return File.uploadFile(filePath, `${BASE_URL}/workspaces/${this.id}/files`);
   }
 
   public async addFile(
     data: ReadStream | Buffer,
     fileName: string
-  ): Promise<IFile> {
-    return addFile(data, fileName, `${BASE_URL}/workspaces/${this.id}/files`);
+  ): Promise<File> {
+    return File.addFile(
+      data,
+      fileName,
+      `${BASE_URL}/workspaces/${this.id}/files`
+    );
   }
 
-  public async getFiles(query?: string): Promise<Array<IFile>> {
-    return getFiles(
+  public async getFiles(query?: string): Promise<Array<File>> {
+    return File.getFiles(
       Array.from(this._collections.values()).map((col) => col.id),
       query
     );
   }
-
-  // // this does not seem to be the intentede use since workspaces are currently only associated
-  // // with files as chatrooms. Removing a comment will remove the enrichments as well.
-  // public async deleteFile(fileId: number): Promise<IFile>;
-  // public async deleteFile(file: IFile): Promise<IFile>;
-  // public async deleteFile(param: IFile | number): Promise<IFile> {
-  //   if (typeof param === "number") {
-  //     return await deleteFile(param);
-  //   } else {
-  //     return await deleteFile(param.id);
-  //   }
-  // }
 
   public async deleteComment(comment: IComment): Promise<boolean> {
     return deleteComment(comment, `${BASE_URL}/workspaces/${this.id}`);
