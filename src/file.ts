@@ -18,6 +18,15 @@ export interface IFile {
 
 export class File {
   public data: IFile;
+
+  public get name(): string {
+    return this.data.fileName;
+  }
+
+  public get mimetype(): string {
+    return this.data.mimetype;
+  }
+
   public constructor(data: IFile) {
     this.data = data;
   }
