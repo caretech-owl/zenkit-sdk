@@ -1,5 +1,15 @@
 # Changelog 
 
+## Release 0.2.2
+
+- introduce File class to improve file handling
+- extend Documentation with Basic Usage
+- add getFile for collections and collections of workspaces;
+  - workspace files are not found (yet)
+- webhook path can now be set in config
+- webhooks can be retrieved from Zenkit object
+- added more trigger types for activity filter
+
 ## Release 0.2.1
 
 - generalize Comments to Actitivies [W/C/E]
