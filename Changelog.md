@@ -1,5 +1,10 @@
 # Changelog 
 
+## Release 0.2.3
+
+- Collection.getUser without role will return workspace users as well when the collection is visible
+- added ID field to File object
+
 ## Release 0.2.2
 
 - introduce File class to improve file handling
