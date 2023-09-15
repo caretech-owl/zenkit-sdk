@@ -27,6 +27,10 @@ export class File {
     return this.data.mimetype;
   }
 
+  public get id(): number {
+    return this.data.id;
+  }
+
   public constructor(data: IFile) {
     this.data = data;
   }
