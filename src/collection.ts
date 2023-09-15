@@ -124,11 +124,18 @@ export class Collection implements IChatGroup {
 
   public async getUsers(roles: Array<UserRole> = []): Promise<Array<IUser>> {
     if (roles.length === 0) {
-      const res = await axios.get(`${BASE_URL}/lists/${this.id}/accesses`);
+      let res = await axios.get(`${BASE_URL}/lists/${this.id}/accesses`);
       const data =
         (res.data as {
           users: Array<IUser>;
         }) || {};
+      if (this.data.visibility > 0) {
+        res = await axios.get(
+          `${BASE_URL}/workspaces/${this.data.workspaceId}/accesses`
+        );
+        data.users.push(...(res.data as { users: Array<IUser> }).users);
+      }
+
       return data.users || [];
     }
     const users = [];
