@@ -73,6 +73,7 @@ export interface ITypedCollection {
 
 export interface ICollection {
   id: number;
+  shortId: string;
   uuid: string;
   name: string;
   workspaceId: number;
@@ -411,18 +412,29 @@ export class Collection implements IChatGroup {
     return this._elements;
   }
 
-  public async populate(filter = {}, limit = 100, skip = 0): Promise<void> {
+  public async populate(
+    limit = 100,
+    orderBy: Array<{
+      column?: string;
+      elementId?: number;
+      direction: string;
+    }> = [],
+    skip = 0
+  ): Promise<void> {
     await this.getElements();
     this._entries = [];
-    const res: { status: number; data: { listEntries: Array<IEntry> } } =
-      await axios.post(`${BASE_URL}/lists/${this.id}/entries/filter/list`, {
-        filter: filter,
+    const res: { status: number; data: Array<IEntry> } = await axios.post(
+      `${BASE_URL}/lists/${this.id}/entries/filter`,
+      {
+        filter: {},
         limit: limit,
         skip: skip,
         allowDeprecated: false,
-      });
+        orderBy: orderBy,
+      }
+    );
     assertReturnCode(res, 200);
-    for (const element of res.data["listEntries"]) {
+    for (const element of res.data) {
       this._entries.push(new this.entry_ctor(element, this._elements!));
     }
   }

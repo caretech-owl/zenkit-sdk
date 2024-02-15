@@ -4,6 +4,8 @@
 
 - Collection.getUser without role will return workspace users as well when the collection is visible
 - added ID field to File object
+- added ShortId field to Collection object
+- switch to filter EP for entry selection; added 'orderBy' to populate parameters
 
 ## Release 0.2.2
 
