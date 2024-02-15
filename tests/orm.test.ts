@@ -40,11 +40,11 @@ describe("Zenkit API operations", () => {
   it("should populate typed fields", async () => {
     mockedAxios.post.mockResolvedValue({
       status: 200,
-      data: entriesJsonData,
+      data: entriesJsonData.array,
     });
     await collection.populate();
     const retData = JSON.parse(
-      JSON.stringify(entriesJsonData.listEntries[3])
+      JSON.stringify(entriesJsonData.array[3])
     ) as IEntry;
     retData.id = 10;
     mockedAxios.post.mockResolvedValue({

@@ -20,7 +20,7 @@ describe("test entry", () => {
         elements.push(new Element(elementJson));
       }
     }
-    entry = new Entry(entryDataJson["listEntries"][2] as IEntry, elements);
+    entry = new Entry(entryDataJson.array[2] as IEntry, elements);
   });
 
   it("should create an entry", async () => {

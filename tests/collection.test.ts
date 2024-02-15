@@ -25,7 +25,7 @@ describe("Zenkit API operations", () => {
     });
     mockedAxios.post.mockResolvedValue({
       status: 200,
-      data: entriesJsonData,
+      data: entriesJsonData.array,
     });
   });
 
