@@ -393,14 +393,18 @@ export class Collection implements IChatGroup {
   }
 
   public async sortEntries<T extends Entry>(
-    fn: (a: T, b: T) => number
+    fn: (a: T, b: T) => number,
+    offset = 0
   ): Promise<void> {
-    await this.populate();
+    if (this._entries.length === 0) {
+      const num = await this.countEntries();
+      await this.populate(num);
+    }
     this._entries.sort((a, b) => fn(a as T, b as T));
     for (let i = 0; i < this._entries.length; ++i) {
       const entry = this._entries[i];
-      if (entry.sortOrder !== i.toString()) {
-        await this._entries[i].setSortOrder(i);
+      if (entry.sortOrder !== (i + offset).toString()) {
+        await entry.setSortOrder(i + offset);
       }
     }
   }
@@ -410,6 +414,17 @@ export class Collection implements IChatGroup {
       this._elements = await this.requestElements();
     }
     return this._elements;
+  }
+
+  public async countEntries(filter = {}): Promise<number> {
+    const res: {
+      status: number;
+      data: { total: number; filteredTotal: number };
+    } = await axios.post(`${BASE_URL}/lists/${this.id}/entries/filter/total`, {
+      filter: filter,
+    });
+    assertReturnCode(res, 200);
+    return res.data.total;
   }
 
   public async populate(
