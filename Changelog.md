@@ -1,5 +1,9 @@
 # Changelog 
 
+## Release 0.2.4
+
+- add countEntries to collections
+
 ## Release 0.2.3
 
 - Collection.getUser without role will return workspace users as well when the collection is visible
